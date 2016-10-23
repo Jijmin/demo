@@ -35,3 +35,39 @@ function getNumberColor(number){
   }
   return 'white';
 }
+//判断是否还有多余的小格子
+function nospace(board){
+  for(var i=0;i<4;i++){
+    for(var j=0;j<4;j++){
+      if(board[i][j]===0){
+        //存在空间
+        return false;
+      }
+    }
+  }
+  //没有空间就返回true
+  return true;
+}
+//判断是否可以向左移动
+function canMoveLeft(board){
+  for(var i=0;i<4;i++){
+    for(var j=1;j<4;j++){//最左边的一列不需要循环，因为最左边不能进行向左移
+      if(board[i][j]!=0){//存在数字
+        if(board[i][j-1]==0||board[i][j-1]==board[i][j]){//如果数字左侧没有数字的或者左边数字和自己相等
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+//判断是否有障碍物
+function noBlockHorizontal(row,col1,col2,board){
+  for(var i=col1+1;i<col2;i++){
+    //一旦存在一个不为0的元素，就有障碍物
+    if(board[i][j]!=0){
+      return false;
+    }
+  }
+  return true;
+}
