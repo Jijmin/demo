@@ -44,3 +44,12 @@ header p{
   background-color: #ccc0b3;
   position: absolute;
 }
+.number-cell{
+  border-radius: 6px;
+  font-family: Arial;
+  font-weight: bold;
+  font-size: 60px;
+  line-height: 100px;
+  text-align: center;
+  position: absolute;
+}
