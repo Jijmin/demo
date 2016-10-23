@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+  <script src="js/konva.js"></script>
+</head>
+<body>
+<div id="canvas"></div>
+<script>
+  //定义两个变量存储页面宽高
+  var width = window.innerWidth;
+  var height = window.innerHeight;
+  //创建一个舞台对象
+  var stage = new Konva.Stage({
+    container: 'canvas',
+    width: width,
+    height: height
+  });
+  //创建一个层对象
+  var layer = new Konva.Layer();
+  //绘制柱状图
+  //绘制下方的坐标线
+  var baseLine = new Konva.Line({
+    points: [width / 8,height / 4 * 3,width / 8 * 7,height / 4 * 3],
+    stroke: '#0094ff',
+    strokeWidth: 1
+  });
+  //将绘制的坐标线添加到层对象中
+  layer.add(baseLine);
+  //绘制每个柱状图
+  //数据
+  var data=[
+    {name:'百度',value:.2,color:'blue'},
+    {name:'阿里', value:.4, color:'red'},
+    {name:'新浪', value:.1, color:'purple'},
+    {name:'搜狐', value:.1, color:'navy'},
+    {name:'360', value:.2, color:'orange'}
+  ];
+  //得到坐标x,y的最大值
+  var maxWidth=3/4*stage.width();//Konva中width和height是方法
+  var maxHeight=1/2*stage.height();
+  //得到每个柱状图所占的宽度
+  var length=maxWidth/data.length;
+  //绘制矩形
+  for(var i=0;i<data.length;i++){
+    var rect = new Konva.Rect({
+      x: 1/8*stage.width()+(1/4+i)*length,
+      y: 3/4*stage.height(),
+      width: 1/2*length,
+      height: 0,
+      fill: data[i].color,
+      cornerRadius: 5,
+      shadowColor: "#000",
+      shadowBlur: 20
+    });
+    //将矩形添加到层中
+    layer.add(rect);
+    //让矩形运动起来
+    var tween = new Konva.Tween({
+      node: rect,
+      duration: 1,
+      y: 3/4*stage.height()-maxHeight*data[i].value,
+      height: maxHeight * data[i].value
+    });
+    tween.play();
+    //绘制每个矩形上面的文字
+    var simpleText = new Konva.Text({
+      x: 1/8*stage.width()+(1/4+i)*length,
+      y: 3/4*stage.height()-20,
+      text: data[i].value*100+'%',
+      fontSize: 16,
+      fontFamily: 'Calibri',
+      fill: data[i].color,
+      align: 'center',
+      width: 1/2*length
+    });
+    layer.add(simpleText);
+    //文字随着矩形一起运动
+    var tween1 = new Konva.Tween({
+      node: simpleText,
+      duration: 1,
+      y: 3/4*stage.height()-20-maxHeight*data[i].value
+    });
+    tween1.play();
+    //绘制矩形底部文字
+    var bottomText = new Konva.Text({
+      x:  1/8 * stage.width() +  (1 / 4 + i ) * length ,
+      y: 3 / 4 * stage.height() + 10,
+      text: data[i].name,
+      fontSize: 16,
+      fontFamily: 'Calibri',
+      fill: data[i].color,
+      align: 'center',
+      width: 1/2* length,
+      rotation: 30
+    });
+    layer.add(bottomText);
+  }
+  //将层添加到舞台上
+  stage.add(layer);
+</script>
+</body>
+</html>

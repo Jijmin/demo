@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+  <script src="js/konva.js"></script>
+</head>
+<body>
+<div id="container"></div>
+<script>
+  var width = window.innerWidth;
+  var height = window.innerHeight;
+  var stage = new Konva.Stage({
+    container: 'container',
+    width: width,
+    height: height
+  });
+  var layer = new Konva.Layer();
+  //背景组
+  var groupBg = new Konva.Group({
+    x: stage.width()/2,
+    y: stage.height()/2
+  });
+  //最外层的圆
+  var outCircle=new Konva.Circle({
+    x: 0,
+    y: 0,
+    radius: 216,
+    stroke: '#ccc',
+    strokeWidth: 1,
+    dash: [6,4]
+  });
+  groupBg.add(outCircle);
+  //添加中间的圆
+  var midCircle=new Konva.Circle({
+    x: 0,
+    y: 0,
+    radius: 137,
+    stroke: '#aaa',
+    strokeWidth: 1,
+    dash: [6,4]
+  });
+  groupBg.add(midCircle);
+  //添加里面的圆
+  var innerCircle=new Konva.Circle({
+    x: 0,
+    y: 0,
+    radius: 120,
+    stroke: '#122e7c',
+    strokeWidth: 2,
+    dash: [10,5]
+  });
+  groupBg.add(innerCircle);
+  //添加里面圆的圆环
+  var outRing=new Konva.Circle({
+    x: 0,
+    y: 0,
+    radius: 90,
+    fill: '#555',
+    opacity:0.2
+  });
+  groupBg.add(outRing);
+  //添加最里面实心圆
+  var innerRing=new Konva.Circle({
+    x: 0,
+    y: 0,
+    radius: 65,
+    fill: '#2a3466'
+  });
+  groupBg.add(innerRing);
+  //添加文本
+  var simpleText = new Konva.Text({
+    x: -65,
+    y: -12,
+    text: 'Web 全栈',
+    fontSize: 24,
+    fontFamily: 'Calibri',
+    fill: '#fff',
+    align:'center',
+    width:130
+  });
+  groupBg.add(simpleText);
+  layer.add(groupBg);
+  stage.add(layer);
+</script>
+</body>
+</html>

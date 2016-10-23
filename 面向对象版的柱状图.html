@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+  <script src="js/konva.js"></script>
+  <script src="js/rect.js"></script>
+</head>
+<body>
+<div id="canvas"></div>
+<script>
+  var width = window.innerWidth;
+  var height = window.innerHeight;
+  //1.创建一个舞台对象
+  var stage = new Konva.Stage({
+    container: 'canvas',
+    width: width,
+    height: height
+  });
+  //创建层
+  var layer = new Konva.Layer();
+  //获得数据
+  var data=[
+    {name:'百度',value:.2,color:'blue'},
+    {name:'阿里', value:.4, color:'red'},
+    {name:'新浪', value:.1, color:'purple'},
+    {name:'搜狐', value:.1, color:'navy'},
+    {name:'360', value:.2, color:'orange'}
+  ];
+  //创建Rect对象
+  var rect = new Rect({
+    data : data,
+    maxWidth : 3/4*width,
+    maxHeight : 1/2*height,
+    width : width,
+    height : height,
+    x : 1/8*width,
+    y : 3/4*height
+  });
+  rect.buildRect(layer);
+  stage.add(layer);
+</script>
+</body>
+</html>
