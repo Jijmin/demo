@@ -12,6 +12,7 @@
     }
   </style>
   <script src="js/konva.js"></script>
+  <script src="js/circle.js"></script>
 </head>
 <body>
 <div id="container"></div>
@@ -89,6 +90,48 @@
   });
   groupBg.add(simpleText);
   layer.add(groupBg);
+  //绘制顺时针的组
+  var outGroup = new Konva.Group({
+    x: stage.width()/2,
+    y: stage.height()/2
+  });
+  //创建一个0度的圆环
+  for(var i=0;i<4;i++){
+    var circle0=new Circle({
+      x:216*Math.cos(90*i*Math.PI/180),
+      y:216*Math.sin(90*i*Math.PI/180),
+      outR:55,
+      innerR:45,
+      fill:'pink',
+      outOpacity:0.2,
+      innerOpacity:0.7,
+      text:'WebApp',
+      fontSize:16,
+      color:'#fff',
+    });
+    circle0.buildCircle(outGroup);
+  }
+  layer.add(outGroup);
+  //添加动画
+  //设置每秒运动的速度
+  var step=3;
+  var anim = new Konva.Animation(function(frame) {
+    //frame.time两帧之间间隔的时间
+    outGroup.rotate(step);
+    //文字看起来不能转，可以向反方向转
+    outGroup.getChildren().each(function(item,index){
+      item.rotate(-step);
+    });
+  }, layer);
+  anim.start();
+  //添加事件
+  //给顺时针转的组改变速度
+  outGroup.on('mouseover', function() {
+    step=1;
+  });
+  outGroup.on('mouseleave', function() {
+    step=3;
+  });
   stage.add(layer);
 </script>
 </body>

@@ -224,3 +224,118 @@ var simpleText = new Konva.Text({
 });
 groupBg.add(simpleText);
 ```
+15. 绘制顺时针的组
+```
+var outGroup = new Konva.Group({
+  x: stage.width()/2,
+  y: stage.height()/2
+});
+```
+16. 将小圆封装成一个对象
+```
+function Circle(option){
+  this._init(option);
+}
+Circle.prototype={
+  _init:function(option){//初始化
+    //圆心坐标
+    this.x=option.x;
+    this.y=option.y;
+    //圆的半径
+    this.outR=option.outR;
+    this.innerR=option.innerR;
+    //圆的填充色
+    this.fill=option.fill;
+    //圆的透明度
+    this.outOpacity=option.outOpacity;
+    this.innerOpacity=option.innerOpacity;
+    this.text=option.text;
+    this.fontSize=option.fontSize;
+    this.color=option.color;
+  },
+  buildCircle:function(addLayerOrGroup){
+    //缓存this对象
+    var _this=this;
+    //创建一个组
+    var group = new Konva.Group({
+      x: _this.x,
+      y: _this.y
+    });
+    //绘制外层圆
+    var outRing=new Konva.Circle({
+      x: 0,
+      y: 0,
+      radius: _this.outR,
+      fill: _this.fill,
+      opacity:_this.outOpacity
+    });
+    group.add(outRing);
+    //绘制内圆
+    var innerRing=new Konva.Circle({
+      x: 0,
+      y: 0,
+      radius: _this.innerR,
+      fill: _this.fill,
+      opacity:_this.innerOpacity
+    });
+    group.add(innerRing);
+    //添加文本
+    var simpleText = new Konva.Text({
+      x: -_this.innerR,
+      y: -_this.fontSize/2,
+      text: _this.text,
+      fontSize: _this.fontSize,
+      fontFamily: 'Calibri',
+      fill: _this.color,
+      align:'center',
+      width:_this.innerR*2
+    });
+    group.add(simpleText);
+    //将每一个小组添加到大组中去
+    addLayerOrGroup.add(group);
+  }
+};
+```
+17. 先将最外面的几个小圆创建出来
+```
+for(var i=0;i<4;i++){
+  var circle0=new Circle({
+    x:216*Math.cos(90*i*Math.PI/180),
+    y:216*Math.sin(90*i*Math.PI/180),
+    outR:55,
+    innerR:45,
+    fill:'pink',
+    outOpacity:0.2,
+    innerOpacity:0.7,
+    text:'WebApp',
+    fontSize:16,
+    color:'#fff',
+  });
+  circle0.buildCircle(outGroup);
+}
+layer.add(outGroup);
+```
+18. 添加动画
+```
+//设置每秒运动的速度
+var step=1;
+var anim = new Konva.Animation(function(frame) {
+  //frame.time两帧之间间隔的时间
+  outGroup.rotate(step);
+  //文字看起来不能转，可以向反方向转
+  outGroup.getChildren().each(function(item,index){
+    item.rotate(-step);
+  });
+}, layer);
+anim.start();
+```
+19. 添加事件
+```
+//给顺时针转的组改变速度
+outGroup.on('mouseover', function() {
+  step=1;
+});
+outGroup.on('mouseleave', function() {
+  step=3;
+});
+```
