@@ -3,6 +3,7 @@
  */
 var board=new Array();//游戏主要数据
 var score=0;//分数
+var hasConflicted=new Array();//二维数组，对应每一个格子是否发生碰撞
 $(function(){
   //开始一个新的游戏
   newgame();
@@ -30,9 +31,11 @@ function init(){
   //将board数组转换成一个二维数组
   for(var i=0;i<4;i++){
     board[i]=new Array();
+    hasConflicted[i]=new Array();//变成二位数组
     //初始化每一个board的值
     for(var j=0;j<4;j++){
       board[i][j]=0;
+      hasConflicted[i][j]=false;//开始的时候再每一个位置都没有进行碰撞
     }
   }
   //调用board的更新函数
@@ -71,6 +74,8 @@ function updateBoardView(){
         //显示数组的值
         theNumberCell.text(board[i][j]);
       }
+      //表示新的一轮开始，碰撞的值重新归位
+      hasConflicted[i][j]=false;
     }
   }
 }
@@ -162,7 +167,7 @@ function moveLeft(){
             board[i][k]=board[i][j];
             board[i][j]=0;//代表着已经移动过去了
             continue;//如果满足当产生完这次移动后结束当次判断
-          }else if(board[i][k]==board[i][j]&&noBlockHorizontal(i,k,j,board)){//如果有相等，并且没有障碍物
+          }else if(board[i][k]==board[i][j]&&noBlockHorizontal(i,k,j,board)&&!hasConflicted[i][k]){//如果有相等，并且没有障碍物，在i,k位置没有发生碰撞
             //move移动
             showMoveAnimation(i,j,i,k);
             //add叠加
@@ -172,6 +177,8 @@ function moveLeft(){
             score+=board[i][k];
             //通知前台分数改变
             updateScore(score);
+            //发生碰撞之后
+            hasConflicted[i][k]=true;//下一次在i,k这个位置就不能发生碰撞
             continue;
           }
         }
@@ -196,12 +203,13 @@ function moveRight(){
             board[i][k]=board[i][j];
             board[i][j]=0;
             continue;
-          }else if(board[i][k]==board[i][j]&&noBlockHorizontal(i,j,k,board)){
+          }else if(board[i][k]==board[i][j]&&noBlockHorizontal(i,j,k,board)&&!hasConflicted[i][k]){
             showMoveAnimation(i,j,i,k);
             board[i][k]*=2;
             board[i][j]=0;
             score+=board[i][k];
             updateScore(score);
+            hasConflicted[i][k]=true;
             continue;
           }
         }
@@ -225,12 +233,13 @@ function moveUp(){
             board[k][j]=board[i][j];
             board[i][j]=0;
             continue;
-          }else if(board[k][j]==board[i][j]&&noBlockVertical(j,k,i,board)){
+          }else if(board[k][j]==board[i][j]&&noBlockVertical(j,k,i,board)&&!hasConflicted[k][j]){
             showMoveAnimation(i,j,k,j);
             board[k][j]*=2;
             board[i][j]=0;
             score+=board[k][j];
             updateScore(score);
+            hasConflicted[k][j]=true;
             continue;
           }
         }
@@ -249,7 +258,7 @@ function moveDown(){
     for(var i=2;i>=0;i--){//向右，不需要考虑最后一列的元素
       if(board[i][j]!=0){
         for(var k=3;k>i;k--){
-          if(board[k][j]==0&&noBlockVertical(j,i,k,board)){
+          if(board[k][j]==0&&noBlockVertical(j,i,k,board)&&!hasConflicted[k][j]){
             showMoveAnimation(i,j,k,j);
             board[k][j]=board[i][j];
             board[i][j]=0;
@@ -260,6 +269,7 @@ function moveDown(){
             board[i][j]=0;
             score+=board[k][j];
             updateScore(score);
+            hasConflicted[k][j]=true;
             continue;
           }
         }
