@@ -37,6 +37,8 @@ function init(){
   }
   //调用board的更新函数
   updateBoardView();
+  //初始化分数
+  score=0;
 }
 function updateBoardView(){
   //假如当前的游戏中有了number-cell
@@ -104,27 +106,27 @@ $(document).keydown(function(event){//可以获取玩家具体的按键信息
     case 37://left
       if(moveLeft()){
         //向左移之后会生成一个新的数字
-        generateOneNumber();
+        setTimeout('generateOneNumber()',210);
         //每次新增数字之后都有可能导致游戏结束，判断当前游戏是否结束
-        isgameover();
+        setTimeout('isgameover()',300);
       }
       break;
     case 38://up
       if(moveUp()){
-        generateOneNumber();
-        isgameover();
+        setTimeout('generateOneNumber()',210);
+        setTimeout('isgameover()',300);
       }
       break;
     case 39://right
       if(moveRight()){
-        generateOneNumber();
-        isgameover();
+        setTimeout('generateOneNumber()',210);
+        setTimeout('isgameover()',300);
       }
       break;
     case 40://down
       if(moveDown()){
-        generateOneNumber();
-        isgameover();
+        setTimeout('generateOneNumber()',210);
+        setTimeout('isgameover()',300);
       }
       break;
     default://default
@@ -132,7 +134,14 @@ $(document).keydown(function(event){//可以获取玩家具体的按键信息
   }
 });
 //游戏结束
-function isgameover(){}
+function isgameover(){
+  if(nospace(board)&&nomove(board)){
+    gameover();
+  }
+}
+function gameover(){
+  alert('gameover!');
+}
 //向左移动
 function moveLeft(){
   //判断当前是否能向左移动
@@ -159,6 +168,10 @@ function moveLeft(){
             //add叠加
             board[i][k]+=board[i][j];
             board[i][j]=0;
+            //加分
+            score+=board[i][k];
+            //通知前台分数改变
+            updateScore(score);
             continue;
           }
         }
@@ -166,6 +179,93 @@ function moveLeft(){
     }
   }
   //对整体数据进行一次刷新
+  setTimeout('updateBoardView()',200);
+  return true;
+}
+//向右移动
+function moveRight(){
+  if(!canMoveRight(board)){
+    return false;
+  }
+  for(var i=0;i<4;i++){
+    for(var j=2;j>=0;j--){//向右，不需要考虑最后一列的元素
+      if(board[i][j]!=0){
+        for(var k=3;k>j;k--){
+          if(board[i][k]==0&&noBlockHorizontal(i,j,k,board)){
+            showMoveAnimation(i,j,i,k);
+            board[i][k]=board[i][j];
+            board[i][j]=0;
+            continue;
+          }else if(board[i][k]==board[i][j]&&noBlockHorizontal(i,j,k,board)){
+            showMoveAnimation(i,j,i,k);
+            board[i][k]*=2;
+            board[i][j]=0;
+            score+=board[i][k];
+            updateScore(score);
+            continue;
+          }
+        }
+      }
+    }
+  }
+  setTimeout('updateBoardView()',200);
+  return true;
+}
+//向上移动
+function moveUp(){
+  if(!canMoveUp(board)){
+    return false;
+  }
+  for(var j=0;j<4;j++){
+    for(var i=1;i<4;i++){//向右，不需要考虑最后一列的元素
+      if(board[i][j]!=0){
+        for(var k=0;k<i;k++){
+          if(board[k][j]==0&&noBlockVertical(j,k,i,board)){
+            showMoveAnimation(i,j,k,j);
+            board[k][j]=board[i][j];
+            board[i][j]=0;
+            continue;
+          }else if(board[k][j]==board[i][j]&&noBlockVertical(j,k,i,board)){
+            showMoveAnimation(i,j,k,j);
+            board[k][j]*=2;
+            board[i][j]=0;
+            score+=board[k][j];
+            updateScore(score);
+            continue;
+          }
+        }
+      }
+    }
+  }
+  setTimeout('updateBoardView()',200);
+  return true;
+}
+//向下移动
+function moveDown(){
+  if(!canMoveDown(board)){
+    return false;
+  }
+  for(var j=0;j<4;j++){
+    for(var i=2;i>=0;i--){//向右，不需要考虑最后一列的元素
+      if(board[i][j]!=0){
+        for(var k=3;k>i;k--){
+          if(board[k][j]==0&&noBlockVertical(j,i,k,board)){
+            showMoveAnimation(i,j,k,j);
+            board[k][j]=board[i][j];
+            board[i][j]=0;
+            continue;
+          }else if(board[k][j]==board[i][j]&&noBlockVertical(j,i,k,board)){
+            showMoveAnimation(i,j,k,j);
+            board[k][j]*=2;
+            board[i][j]=0;
+            score+=board[k][j];
+            updateScore(score);
+            continue;
+          }
+        }
+      }
+    }
+  }
   setTimeout('updateBoardView()',200);
   return true;
 }

@@ -19,6 +19,7 @@ header h1{
   color: #fff;
   border-radius: 10px;
   text-decoration: none;
+  outline: none;
 }
 #newgamebutton:hover{
   background-color: #978b77;

@@ -61,13 +61,68 @@ function canMoveLeft(board){
   }
   return false;
 }
+//判断是否可以向右移动
+function canMoveRight(board){
+  for(var i=0;i<4;i++){
+    for(var j=2;j>=0;j--){//最左边的一列不需要循环，因为最左边不能进行向左移
+      if(board[i][j]!=0){//存在数字
+        if(board[i][j+1]==0||board[i][j+1]==board[i][j]){//如果数字左侧没有数字的或者左边数字和自己相等
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+//判断是否可以向上移动
+function canMoveUp(board){
+  for(var j=0;j<4;j++){
+    for(var i=1;i<4;i++){//最左边的一列不需要循环，因为最左边不能进行向左移
+      if(board[i][j]!=0){//存在数字
+        if(board[i-1][j]==0||board[i-1][j]==board[i][j]){//如果数字左侧没有数字的或者左边数字和自己相等
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+//判断是否可以向下移动
+function canMoveDown(board){
+  for(var j=0;j<4;j++){
+    for(var i=2;i>=0;i--){//最左边的一列不需要循环，因为最左边不能进行向左移
+      if(board[i][j]!=0){//存在数字
+        if(board[i+1][j]==0||board[i+1][j]==board[i][j]){//如果数字左侧没有数字的或者左边数字和自己相等
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
 //判断是否有障碍物
 function noBlockHorizontal(row,col1,col2,board){
   for(var i=col1+1;i<col2;i++){
     //一旦存在一个不为0的元素，就有障碍物
-    if(board[i][j]!=0){
+    if(board[row][i]!=0){
       return false;
     }
+  }
+  return true;
+}
+//判断是否有障碍物
+function noBlockVertical(col,row1,row2,board){
+  for(var i=row1+1;i<row2;i++){
+    //一旦存在一个不为0的元素，就有障碍物
+    if(board[i][col]!=0){
+      return false;
+    }
+  }
+  return true;
+}
+function nomove(){
+  if(canMoveLeft(board)||canMoveRight(board)||canMoveUp(board)||canMoveDown(board)){
+    return false;
   }
   return true;
 }

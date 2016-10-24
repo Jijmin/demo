@@ -32,3 +32,7 @@ function showMoveAnimation(formx,formy,tox,toy){
     left:getPosLeft(tox,toy),
   },200);
 }
+//更新分数
+function updateScore(score){
+  $('#score').text(score);
+}
