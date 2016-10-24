@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html style="height:100%">
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body style="height:100%">
+<canvas id="canvas" style="height:100%"></canvas>
+<script>
+  window.onload=function(){
+//    获取canvas标签
+    var canvas=document.getElementById('canvas');
+    if(canvas.getContext('2d')){
+      //    绘图上下文环境
+      var context=canvas.getContext('2d');
+    }else{
+//      解决浏览器不支持canvas的问题
+      alert('当前浏览器不支持canvas，请更换浏览器后再试');
+    }
+  }
+</script>
+<!--二维的点阵模型-->
+<script src="js/digit.js"></script>
+<!--程序的主逻辑-->
+<script src="js/countdown.js"></script>
+</body>
+</html>

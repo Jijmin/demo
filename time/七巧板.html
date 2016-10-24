@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    canvas {
+      border: 1px solid #aaa;
+      display: block;
+      margin: 50px auto;
+    }
+  </style>
+</head>
+<body>
+<canvas id="canvas">当前浏览器不支持canvas，请更换浏览器后再试</canvas>
+<script>
+  //定义一个数组，配置属性
+  var tangram=[
+    {p:[{x:0,y:0},{x:800,y:0},{x:400,y:400}],color:'#caff67'},
+    {p:[{x:0,y:0},{x:400,y:400},{x:0,y:800}],color:'#67becf'},
+    {p:[{x:800,y:0},{x:800,y:400},{x:600,y:600},{x:600,y:200}],color:'#ef3d61'},
+    {p:[{x:600,y:200},{x:600,y:600},{x:400,y:400}],color:'#f9f51a'},
+    {p:[{x:400,y:400},{x:600,y:600},{x:400,y:800},{x:200,y:600}],color:'#a594c0'},
+    {p:[{x:200,y:600},{x:400,y:800},{x:0,y:800}],color:'#fa8ecc'},
+    {p:[{x:800,y:400},{x:800,y:800},{x:400,y:800}],color:'#f6ca29'}
+  ];
+  window.onload = function () {
+//    获取canvas标签
+    var canvas = document.getElementById('canvas');
+    canvas.width=800;
+    canvas.height=800;
+    //    绘图上下文环境
+    var context = canvas.getContext('2d');
+//    遍历配置文件的所有的对象
+    for(var i=0;i<tangram.length;i++){
+//      调用绘图方法
+      draw(tangram[i],context);
+    }
+
+  }
+  /**
+   * 绘图方法
+   * @param piece 七巧板中的一块
+   * @param ctx 绘图上下文
+   */
+  function draw(piece,cxt){
+//      调用画笔
+    cxt.beginPath();
+//      移动画笔到块中的第一个坐标
+    cxt.moveTo(piece.p[0].x,piece.p[0].y);
+//      循环绘制每一块的点
+    for(var i=1;i<piece.p.length;i++){
+      cxt.lineTo(piece.p[i].x,piece.p[i].y);
+    }
+//      关闭画笔
+    cxt.closePath();
+//      改变画笔的颜色
+    cxt.fillStyle=piece.color;
+//      填充
+    cxt.fill();
+  }
+</script>
+</body>
+</html>

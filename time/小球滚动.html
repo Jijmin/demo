@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+  var ball={x:512,y:100,r:20,g:2,vx:-4,vy:-10,color:'#e92322'};
+  window.onload=function(){
+    var canvas=document.getElementById('canvas');
+    canvas.width=1024;
+    canvas.height=768;
+    canvas.style.border='1px solid #000';
+    var context=canvas.getContext('2d');
+    setInterval(function(){
+      render(context);
+      update();
+    },50);
+  };
+  function update(){
+//    小球x轴的坐标等于坐标加速度值
+    ball.x+=ball.vx;
+    ball.y+=ball.vy;
+//    由于有重力加速度，只影响y速度
+    ball.vy+=ball.g;
+//    碰撞检测，触底
+    if(ball.y>=canvas.height-ball.r){
+//      着地
+      ball.y=canvas.height-ball.r;
+//      速度发生改变增加一个摩擦系数
+      ball.vy=-ball.vy*0.5;
+    }
+  }
+  function render(cxt){
+    cxt.clearRect(0,0,cxt.canvas.width,cxt.canvas.height);
+    cxt.fillStyle=ball.color;
+    cxt.beginPath();
+    cxt.arc(ball.x,ball.y,ball.r,0,2*Math.PI);
+    cxt.closePath();
+    cxt.fill();
+  }
+</script>
+</body>
+</html>
