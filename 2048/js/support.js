@@ -1,13 +1,21 @@
 /**
  * Created by Administrator on 2016/10/23.
  */
+//当前设备中可以使用的宽度
+documentWidth=window.screen.availWidth;
+//整个棋盘区域
+girdContainerWidth=0.92*documentWidth;
+//每个小格子的宽度
+cellSideLength=0.18*documentWidth;
+//每个格子的间隙
+cellSpace=0.04*documentWidth;
 //每一行距离顶部的计算
 function getPosTop(i,j){
-  return 20+i*120;
+  return cellSpace+i*(cellSpace+cellSideLength);
 }
 //每一列距离左边的计算
 function getPosLeft(i,j){
-  return 20+j*120;
+  return cellSpace+j*(cellSpace+cellSideLength);
 }
 //每个数字对应不同颜色赋值
 function getNumberBackgroundColor(number){

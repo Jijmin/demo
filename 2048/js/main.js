@@ -5,9 +5,24 @@ var board=new Array();//游戏主要数据
 var score=0;//分数
 var hasConflicted=new Array();//二维数组，对应每一个格子是否发生碰撞
 $(function(){
+  //移动端的准备工作
+  prepareForMobile();
   //开始一个新的游戏
   newgame();
 });
+function prepareForMobile(){
+  $('#grid-container').css({
+    'width':girdContainerWidth-2*cellSpace,
+    'height':girdContainerWidth-2*cellSpace,
+    'padding':cellSpace,
+    'borderRadius':0.02*girdContainerWidth
+  });
+  $('.gird-cell').css({
+    'width':cellSideLength,
+    'height':cellSideLength,
+    'borderRadius':0.02*cellSideLength
+  });
+}
 //新的游戏
 function newgame(){
   //初始化棋盘格
@@ -58,13 +73,13 @@ function updateBoardView(){
         theNumberCell.css({
           width:'0px',
           height:'0px',
-          top:getPosTop(i,j)+50,
-          left:getPosLeft(i,j)+50
+          top:getPosTop(i,j)+cellSideLength/2,
+          left:getPosLeft(i,j)+cellSideLength/2
         });
       }else{
         theNumberCell.css({
-          width:'100px',
-          height:'100px',
+          width:cellSideLength,
+          height:cellSideLength,
           top:getPosTop(i,j),
           left:getPosLeft(i,j),
           //根据数字的不同，背景颜色相应改变
@@ -77,6 +92,8 @@ function updateBoardView(){
       //表示新的一轮开始，碰撞的值重新归位
       hasConflicted[i][j]=false;
     }
+    $('.number-cell').css('line-height',cellSideLength+'px');
+    $('.number-cell').css('font-size',0.6*cellSideLength+'px');
   }
 }
 //在随机的两个格子中生成数字
@@ -90,12 +107,27 @@ function generateOneNumber(){
   var randx=parseInt(Math.floor(Math.random()*4));
   var randy=parseInt(Math.floor(Math.random()*4));
   //如果这个位置上有数字，就不能存放
-  while(true){
+  //解决最后只剩一个位置的还要经过很长时间才能生成
+  var times=0;
+  while(times<50){
     if(board[randx][randy]===0){
       break;
     }
     var randx=parseInt(Math.floor(Math.random()*4));
     var randy=parseInt(Math.floor(Math.random()*4));
+    times++;
+  }
+  //如果计算机50次还没有猜到位置，就人工生成一个位置
+  if(times===50){
+    for (var i = 0; i < 4; i++) {
+      for (var j = 0; j < 4; j++) {
+        //如果有一个格子为空
+        if(board[i][j]===0){
+          randx=i;
+          randy=j;
+        }
+      }
+    }
   }
   //随机一个数字
   var randNumber=Math.random()<0.5?2:4;
