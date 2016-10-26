@@ -11,13 +11,18 @@ $(function(){
   newgame();
 });
 function prepareForMobile(){
+  if(documentWidth>500){
+    girdContainerWidth=500;
+    cellSpace=20;
+    cellSideLength=100;
+  }
   $('#grid-container').css({
     'width':girdContainerWidth-2*cellSpace,
     'height':girdContainerWidth-2*cellSpace,
     'padding':cellSpace,
     'borderRadius':0.02*girdContainerWidth
   });
-  $('.gird-cell').css({
+  $('.grid-cell').css({
     'width':cellSideLength,
     'height':cellSideLength,
     'borderRadius':0.02*cellSideLength
@@ -92,8 +97,10 @@ function updateBoardView(){
       //表示新的一轮开始，碰撞的值重新归位
       hasConflicted[i][j]=false;
     }
-    $('.number-cell').css('line-height',cellSideLength+'px');
-    $('.number-cell').css('font-size',0.6*cellSideLength+'px');
+    $('.number-cell').css({
+      'lineHeight':cellSideLength+'px',
+      'fontSize':0.6*cellSideLength+'px'
+    });
   }
 }
 //在随机的两个格子中生成数字

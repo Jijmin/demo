@@ -15,8 +15,8 @@ function showNumberWithAnimation(i,j,randNumber){
   numberCell.text(randNumber);
   //动画函数
   numberCell.animate({
-    width:'100px',
-    height:'100px',
+    width:cellSideLength,
+    height:cellSideLength,
     //本来是圆心的位置，转换成左上角的位置
     top:getPosTop(i,j),
     left:getPosLeft(i,j)
