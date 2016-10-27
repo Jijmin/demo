@@ -4,6 +4,10 @@
 var board=new Array();//游戏主要数据
 var score=0;//分数
 var hasConflicted=new Array();//二维数组，对应每一个格子是否发生碰撞
+var startx=0;
+var starty=0;
+var endx=0;
+var endy=0;
 $(function(){
   //移动端的准备工作
   prepareForMobile();
@@ -148,6 +152,8 @@ function generateOneNumber(){
 $(document).keydown(function(event){//可以获取玩家具体的按键信息
   switch(event.keyCode){
     case 37://left
+      //阻挡住原本的默认效果
+      event.preventDefault();
       if(moveLeft()){
         //向左移之后会生成一个新的数字
         setTimeout('generateOneNumber()',210);
@@ -156,18 +162,21 @@ $(document).keydown(function(event){//可以获取玩家具体的按键信息
       }
       break;
     case 38://up
+      event.preventDefault();
       if(moveUp()){
         setTimeout('generateOneNumber()',210);
         setTimeout('isgameover()',300);
       }
       break;
     case 39://right
+      event.preventDefault();
       if(moveRight()){
         setTimeout('generateOneNumber()',210);
         setTimeout('isgameover()',300);
       }
       break;
     case 40://down
+      event.preventDefault();
       if(moveDown()){
         setTimeout('generateOneNumber()',210);
         setTimeout('isgameover()',300);
@@ -175,6 +184,58 @@ $(document).keydown(function(event){//可以获取玩家具体的按键信息
       break;
     default://default
       break;
+  }
+});
+//触摸事件
+document.addEventListener('touchstart',function(event){
+  startx=event.touches[0].pageX;
+  starty=event.touches[0].pageY;
+});
+//在真机上测试滑动有可能有问题，如果有问题用下面事件阻止默认事件
+document.addEventListener('touchmove',function(event){
+  event.preventDefault();
+});
+document.addEventListener('touchend',function(event){
+  endx=event.changedTouches[0].pageX;
+  endy=event.changedTouches[0].pageY;
+
+  var deltaX=endx-startx;//x轴方向
+  var deltaY=endy-starty;//y轴方向
+  //要进行判断，如果小于一定阈值的时候就是点击事件，不应该执行下面的代码
+  if(Math.abs(deltaX)<0.3*documentWidth&&Math.abs(deltaY)<0.3*documentWidth) return;
+  //判断哪个方向移动的值多一些，就是往哪个方向移动
+  if(Math.abs(deltaX)>=Math.abs(deltaY)){
+    //触摸在X轴方向执行
+    //再对方向进行判断
+    if(deltaX>0){//X正方向
+      //move right
+      if(moveRight()){
+        setTimeout('generateOneNumber()',210);
+        setTimeout('isgameover()',300);
+      }
+    }else{
+      //move left
+      if(moveLeft()){
+        //向左移之后会生成一个新的数字
+        setTimeout('generateOneNumber()',210);
+        //每次新增数字之后都有可能导致游戏结束，判断当前游戏是否结束
+        setTimeout('isgameover()',300);
+      }
+    }
+  }else{
+    if(deltaY>0){
+      //move down
+      if(moveDown()){
+        setTimeout('generateOneNumber()',210);
+        setTimeout('isgameover()',300);
+      }
+    }else{
+      //move up
+      if(moveUp()){
+        setTimeout('generateOneNumber()',210);
+        setTimeout('isgameover()',300);
+      }
+    }
   }
 });
 //游戏结束
