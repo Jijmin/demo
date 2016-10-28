@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <!-- 引入echarts-->
+  <script src="echarts.min.js"></script>
+</head>
+<body>
+<!--为ECharts准备好一个具备大小(宽高)的DOM-->
+<div id="main" style="width:900px;height:600px;"></div>
+<script>
+  //基于准备好的DOM，初始化echarts实例
+  var myChart=echarts.init(document.getElementById('main'));
+  //指定图表的配置项和数据
+  var option={
+    //标题
+    title:{
+      text:'某站点用户访问来源',
+      subtext:'纯属虚构',
+      x:'center'
+    },
+    tooltip:{
+      trigger:'item',
+      //显示格式
+      formatter:'{a}<br/>{b}:{c}({d}%)'
+    },
+    //图例
+    legend:{
+      orient:'vertical',
+      left:'left',
+      data:['直接访问','邮件营销','联盟广告','视频广告','搜索引擎']
+    },
+    //数据
+    series:[{
+      name:'访问来源',
+      type:'pie',
+      radius:'55%',
+      center:['50%','60%'],
+      data:[
+          //name要和图例中的data数据一一对应
+        {value:335,name:'直接访问'},
+        {value:310,name:'邮件营销'},
+        {value:234,name:'联盟广告'},
+        {value:135,name:'视频广告'},
+        {value:1314,name:'搜索引擎'},
+      ]
+    }]
+  };
+  //使用刚指定的配置项和数据显示图表
+  myChart.setOption(option);
+</script>
+</body>
+</html>
