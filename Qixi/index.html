@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>七夕主题</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/pageA.css"/>
+  <link rel="stylesheet" href="css/pageB.css"/>
+  <link rel="stylesheet" href="css/pageC.css"/>
+</head>
+<body>
+<!--限制显示区域的节点-->
+<div id="content">
+  <ul class="content-wrap">
+    <!-- 第一幅画面-->
+    <li>
+      <div class="a_background">
+        <div class="a_background_top"></div>
+        <div class="a_background_middle"></div>
+        <div class="a_background_botton"></div>
+      </div>
+      <!-- 云-->
+      <div class="cloudArea">
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+      </div>
+      <!-- 太阳-->
+      <div id="sun"></div>
+    </li>
+    <!-- 第二幅画面-->
+    <li>
+      <!-- 背景图-->
+      <div class="b_background"></div>
+      <!--是商店的灯的亮度切换采用的是切换背景图片，背景图如果是没有预加载的话就有一个闪屏的问题-->
+      <div class="b_background_preload"></div>
+      <!-- 商店-->
+      <div class="shop">
+        <div class="door">
+          <div class="door_left"></div>
+          <div class="door_right"></div>
+        </div>
+        <!-- 灯-->
+        <div class="lamp"></div>
+      </div>
+      <!-- 鸟-->
+      <div class="bird"></div>
+    </li>
+    <!-- 第三幅画面-->
+    <li>
+      <!-- 背景图-->
+      <div class="c_background">
+        <div class="c_background_top"></div>
+        <div class="c_background_middle"></div>
+        <div class="c_background_botton"></div>
+      </div>
+      <!-- 小女孩-->
+      <div class="girl"></div>
+      <!-- 水波-->
+      <div class="bridge_bottom">
+        <div class="water">
+          <div id="water1" class="water_1"></div>
+          <div id="water2" class="water_2"></div>
+          <div id="water3" class="water_3"></div>
+          <div id="water4" class="water_4"></div>
+        </div>
+      </div>
+      <!-- 星星-->
+      <ul class="stars">
+        <li class="stars1"></li>
+        <li class="stars2"></li>
+        <li class="stars3"></li>
+        <li class="stars4"></li>
+        <li class="stars5"></li>
+        <li class="stars6"></li>
+      </ul>
+      <!-- logo-->
+      <div class="logo"></div>
+    </li>
+  </ul>
+  <!-- 飘花-->
+  <div id="snowflake"></div>
+  <!-- 与页面根节点并列-->
+  <div id="boy" class="charector"></div>
+  <div class="button">
+    <button>开始</button>
+  </div>
+</div>
+<!--jQuery-->
+<script src="js/js.js"></script>
+<!--jquery.transit插件，封装了transition的CSS3过渡动画的实现-->
+<script src="js/transit.js"></script>
+<!--滑动文件-->
+<script src="js/Swipe.js"></script>
+<script src="js/walk.js"></script>
+<script src="js/pageB.js"></script>
+<script src="js/pageC.js"></script>
+<script src="js/all_steps.js"></script>
+</body>
+</html>
