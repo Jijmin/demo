@@ -209,3 +209,65 @@ xhr.open("get", "http://www.somewhere-else.com/page/", true);
 - 不能使用setRequestHeader()设置自定义头部。
 - 不能发送和接收cookie。
 - 调用getAllResponseHeaders()方法总会返回空字符串。
+
+### Preflighted Reqeusts
+1. Origin：与简单的请求相同
+2. Access-Control-Request-Method：请求自身使用的方法
+3. Access-Control-Request-Headers：（可选）自定义的头部信息，多个头部以逗号分隔
+发送这个请求后，服务器可以决定是否允许这种类型的请求。
+服务器通过在响应中发送如下头部与
+浏览器进行沟通。
+1. Access-Control-Allow-Origin：与简单的请求相同
+2. Access-Control-Allow-Methods：允许的方法，多个方法以逗号分隔。
+3. Access-Control-Allow-Headers：允许的头部，多个头部以逗号分隔
+4. Access-Control-Max-Age：应该将这个Preflight请求缓存多长时间（以秒表示）
+
+### 带凭据的请求
+通过将withCredentials属性设置为true，可以指定某个请求应该发送的凭据
+
+### 跨浏览器的CORS
+检测XHR是否支持CORS的最简单方式，就是检查是否存在withCredentials属性。
+再结合检测XDomainRequest对象是否存在，就可以兼顾所有浏览器了。
+
+## 其他跨域技术
+
+### 图像Ping
+一个网页可以从任何网页中加载图片，不用担心跨域不跨域。图像Ping是与服务器进行简单，单向的跨域通信的一种方式。请求的数据是通过查询字符串形式发送的，而响应可以是任何内容，但通常是像素图或204响应。通过图像Ping，浏览器得不到任何具体的数据，但通过侦听load和error事件，它能知道响应是什么时候接收到的。
+```
+var img = new Image();
+img.onload = img.onerror = function(){
+  alert("Done!");
+};
+img.src = "http://www.example.com/test?name=Nicholas";
+```
+图像Ping最常用于跟踪用户点击页面或动态广告曝光次数。图像Ping有两个主要的缺点，一是只能发送GET请求，二是无法访问服务器的响应文本。因此，图像Ping只能用于浏览器与服务器见的单向通行。
+
+### JSONP(填充式JSON或参数式JSON)
+- JSONP和JSON很像，只不过是被包含在函数调用中的JSON
+```
+callback({'name':'zy'});
+```
+- JSONP由两部分组成：回调函数和数据。回调函数是当响应到来时应该在页面中调用的函数。回调函数的名字一般是在请求中指定的。而数据就是传入回调函数中的JSON数据。
+- JSONP是通过动态<script>元素来使用的，使用时可以为src属性指定一个跨域的URL。与<img>标签类似，都有能力不受限制地从其他域加载资源。因为JSONP是有效的JavaScript代码，所以在请求完成后，即在JSONP响应加载到页面中以后，就会立即执行。
+```
+function handleResponse(response){
+  alert("You’re at IP address " + response.ip + ", which is in " +response.city + ", " + response.region_name);
+}
+var script = document.createElement("script");
+script.src = "http://freegeoip.net/json/?callback=handleResponse";
+document.body.insertBefore(script, document.body.firstChild);
+```
+JSONP优点：能够直接访问响应文本，支持在浏览器与服务器之间的双向通信。
+JSONP缺点：JSONP是从其他域中加载代码执行，如果其他域不安全，很有可能夹带恶意代码，而此时除了完全放弃JSONP外，没有办解决，因此在使用不是你自己运维的Web服务时，一定要保证它安全可靠。还有，要确定JSONP请求是否失败并不容易。虽然H5给<script>元素新增了一个onerror事件处理程序，但目前还没有得到任何浏览器支持。
+
+### Comet
+Ajax是一种从页面向服务器请求数据的技术，而Comet则是一种服务器向页面推送数据的技术。Comet能够让信息近乎实时的被推送到页面上，非常适合处理体育比赛的分数和股票报价。
+1. 有两种实现Comet的方式：长轮询和流。
+- 长轮询
+  1. 长轮询是传统轮询（也称为短轮询）的一个翻版，即浏览器定时向服务器发送请求，看有没有更新的数据
+  2. 页面发起一个到服务器的请求，然后服务器一直保持连接打开，直到有数据可发送。
+  3. 发送完数据之后，浏览器关闭连接，随即又发起一个到服务器的新请求。
+  4. 这一过程在页面打开期间一直持续不断。
+轮询的优势：是所有浏览器都支持，因为使用XHR对象和setTimeout()就能实现。而你要做的就是决定什么时候发送请求。
+- 流
+第二种流行的Comet实现是HTTP流。流不同于上述两种轮询，因为它在页面的整个生命周期内只使用一个HTTP连接。具体来说，就是浏览器向服务器发送一个请求，而服务器保持连接打开，然后周期性地向浏览器发送数据。所有服务器端语言都支持打印到输出缓存然后刷新（将输出缓存中的内容一次性全部发送到客户端）的功能。而这正是实现HTTP流的关键所在。
