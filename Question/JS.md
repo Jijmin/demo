@@ -40,3 +40,8 @@
 ### 简述readonly与disabled的区别
 1. readonly只针对input(text/password)、textarea有效，会将值传递出去
 2. disabled对所有的表单元素都有效，当表单通过GET、POST提交的时候，值不会被传递出去
+
+### 请尽可能详尽的解释 ajax 的工作原理
+
+### 为什么扩展 javascript 内置对象不是好的做法
+因为扩展内置对象会影响整个程序中所有使用到的该内置对象的原型属性。
