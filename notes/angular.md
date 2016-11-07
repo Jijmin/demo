@@ -356,3 +356,13 @@ angular.module( 'mainApp', [] )
 - 新建一个.bat文件，再桌面创建一个快捷方式，直接双击就可以自动在命令行中运行
 
 ### 花生壳
+
+### 作为model的$scope
+1. $scope充当了MVC中的Data-Maodel角色
+2. $scope是一个POJO(Plain Old JavaScript Object)
+3. $scope提供了一些工具类的方法$watch()/$apply()
+4. $scope是表达式的执行环境(或者叫做作用域)
+5. $scope是一个树型结构，与DOM标签平行
+6. 子$scope对象会继承父$scope上的属性
+7. 每一个angular应用只有一个根$scope对象(一般位于ng-app上)
+8. $scope可以传播事件，类似DOM事件，可以向上也可以向下
