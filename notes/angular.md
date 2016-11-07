@@ -80,6 +80,122 @@ npm install angular --registry=https://registry.npm.taobao.org
 6. 在需要处理数据的地方，直接操作$scope的属性即可
 
 ### 注册
+1. 导入angular的js文件
+2. 设置angular的入口`ng-app`以及控制器`ng-controller`
+```
+<body ng-app='mainApp' ng-controller='mainController'>
+```
+3. 要处理表单标签，所以表单标签就是模型`ng-model="name"`
+4. 使用angular的控制区域
+```
+angular.module('mainApp',[]).controller('mainController',function($scope){...});
+```
+5. 给按钮注册点击事件`ng-click="register()"`
+6. 用一个span标签显示我们的提示信息`<span>{{text}}</span>`
+7. 书写我们给按钮注册的点击事件
+8. 控制器中有一个$scope对象能够取得控制器区域的所有的数据，都是它的属性
+9. 先将提示信息清空，要在点击事件之外
+10. 只要有一个数据没有输入有效信息就有适当的提示
+```
+if(name===undefined||name.trim().length===0||
+  pwd===undefined||pwd.trim().length===0||
+  pwd2===undefined||pwd2.trim().length===0){
+  $scope.text='请输入完整信息';
+  return;
+}
+```
+11. 判断两次的密码是否一致
+```
+if(pwd!=pwd2){
+  $scope.text='两次密码不一致';
+  return;
+}
+```
+12. 下次输入的时候直接在原来的基础上修改，触发点击事件的时候要将原来的数据清空`$scope.text='';`
+13. 需要将数据存储到本地
+14. 保存当前输入对象数据的构造函数
+```
+function PersonInfo(name,pwd){
+  this.name=name;
+  this.pwd=pwd;
+}
+```
+15. 添加原型存储方法
+```
+PersonInfo.prototype.saveToLocalStorage=function(){...};
+```
+16. 先将原来的数据取出来
+```
+var storage=window.localStorage.getItem('PersonInfo');
+```
+17. 取出来的数据是字符串，需要对其转换为数组对象才能使用数组的方法
+```
+storage?JSON.parse(storage):[];
+```
+18. 将当前的数据存储进数组对象中
+```
+storage.push(this);
+```
+19. 改变localStorage里面的数据，并且要将字符串装换成字符串
+```
+window.localStorage.setItem('PersonInfo',JSON.stringify(storage));
+``` 
+20. 将数据写入本地缓存中
+```
+var data=new PersonInfo(name,pwd);
+data.saveToLocalStorage();
+```
+21. 将数据重置
+```
+$scope.name = $scope.pwd = $scope.pwd2 = '';
+```
+22. 匹配用户名是否已经存在
+```
+PersonInfo.selectByName=function(){
+  var storage=window.localStorage.getItem('PersonInfo');
+  storage=storage?JSON.parse(storage):[];
+  return storage.some(function(obj){
+    return obj.name===name;
+  });
+};
+```
+23. 判断用户名是否存在
+```
+if(PersonInfo.selectByName(name)){
+  $scope.text='该用户名已经存在了';
+  return;
+}
+```
+
+### 手动添加ng-app
+```
+angular.module('mainApp.AModel',[]);
+angular.module('mainApp.BModel',[]);
+var dv1=document.getElementById('zy11');
+var dv2=document.getElementById('zy33');
+angular.bootstrap(dv1,['mainApp.AModel']);
+angular.bootstrap(dv2,['mainApp.BModel']);
+```
+
+### 组织模块的方式
+1. 按照业务功能分组(推荐)
+2. 按照逻辑分类的方式
+
+### 查找模块
+```
+m2 = angular.module( 'mainApp' );
+```
+直接这样定义是不行的，由于没有定义mainApp模块所以会报错
+```
+var m1, m2;
+(function () { 
+  m1 = angular.module( 'mainApp', [] ); 
+})();
+(function () {
+  m2 = angular.module( 'mainApp' ); 
+})();
+```
+可能涉及到在不同的地方需要查找模块，但是由于不能使用全局变量，所以使用该方法对模块进行查找，对于初学者少使用，但是在做组件开发的时候或多模块协作的时候
 
 ### 将字符串转换成对象
 1. eval(str)
@@ -117,7 +233,14 @@ JSON.stringify()
 ```
 angular.module('模块名',[])
 ```
-//TODO笔记补充完整
+
+### 早期angular的控制器的写法
+```
+function mainController ( $scope ) {
+  $scope.txt = '我是早期的版本';
+}
+```
+应该尽量避免全局定义，所以后来就不使用这种方式
 
 ### 依赖注入
 1. 注入
@@ -134,6 +257,27 @@ angular.module('模块名',[])
 6. 凡是创建控制器就会创建一个$scope对象
 7. angular会将该对象自动的注入到需要的地方
 8. 需要注入的时候只需要给函数的定义参数写成这种对象的名字即可
+
+### 依赖注入的内部构造
+1. 当我们写入一个控制器的时候,函数部分的参数是$scope
+```
+angular.module('mianApp',[])
+       .controller('mainController',function($scope){...});
+```
+2. angular会按照流程创建模块，再创建控制器
+3. 在内部会创建一个$scope对象
+4. 类似这种$开头的对象，是angular内部自动创建的
+5. 命名是规定好的，不能更改
+6. 创建完$scope对象后，系统会自动对function部分进行转换
+```
+[ '$scope', '$window', function ( $scope, $window ) { ... } ]
+```
+7. 由于是系统自带的，我们进行压缩的时候，会将函数的形参转变，但是如果名字改了后就不能使用angular的方法
+8. 我们创建控制器的时候应该使用注入式
+```
+.controller( 'mainController', [ '$scope', '$window' , function ( s, $window ) {...}] );
+```
+9. 由于是我们手动创建的，function里面的形参可以更改，但是要注意，用法要与数组的前面字符串匹配
 
 ### 依赖注入的小结
 1. 如果需要控制器，那么写成函数的形式
@@ -153,7 +297,53 @@ angular.module('模块名',[])
     + 对象如何使用(文档)如何注入有统一的规范
 - 我就有了这个功能了，就能直接使用这个对象的所有行为
 
+### 函数的注入形式
+1. 函数本体
+```
+function foo($scope, $window){
+  $scope.num = 10;
+  $window.alert( 123 );
+}
+```
+2. 定义一个函数处理上面的函数或是匿名函数
+3. 先将上面的函数转换字符串`toString()`
+4. 定义一正则表达式将要处理的函数的参数匹配出来
+```
+var r = /function.+?\((.+?)\)/;
+```
+5. 将参数用","分割存入数组
+```
+var args = r.exec( fnbody )[ 1 ].split( ',' );
+```
+6. 取出的参数是没有""的，我们需要手动添加，并去除空格
+```
+args.forEach(function ( v, i ) {
+  // v 就是数组中存储的参数 字符串, 不是字符串形式
+  data.push( '"' + v.trim() + '"' );
+});
+```
+7. 要形成注入形式，需要重新定义一个空数组来存储字符串数组以及函数
+```
+var data=[];
+```
+8. 将函数体也加入到data中
+```
+data.push( fnbody );
+```
+9. 将数组转转成字符串的形式返回，因为我们是要将转换出来的东西作为形参使用
+10. 因此要将数组对象作为字符串返回
+```
+return '[ ' +  data.join( ', ' ) + ' ]';
+```
+
 ### 控制器构造函数的写法(少用)
+```
+function Controller( )  {
+  this.model = '初始化数据';
+}
+angular.module( 'mainApp', [] )
+  .controller( 'mainController', Controller );
+```
 
 ### 扩展node的一些工具
 1. http-server开启服务器
@@ -166,4 +356,3 @@ angular.module('模块名',[])
 - 新建一个.bat文件，再桌面创建一个快捷方式，直接双击就可以自动在命令行中运行
 
 ### 花生壳
-
