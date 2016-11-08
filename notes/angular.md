@@ -366,3 +366,119 @@ angular.module( 'mainApp', [] )
 6. 子$scope对象会继承父$scope上的属性
 7. 每一个angular应用只有一个根$scope对象(一般位于ng-app上)
 8. $scope可以传播事件，类似DOM事件，可以向上也可以向下
+
+1. 在实际开发中要尽可能的封装代码结构
+2. localStorage
+- 存到localStorage中的是字符串键值对，取出来也是字符串键值对
+3. 什么是模块
+4. 多模块协作
+5. 描述依赖注入
+6. 控制器的多种写法
+- 将所有的Controller写在一个module中
+- 一个module一个Controller
+- 混合式的
+7. 搭建ng文档网站
+
+### $scope
+1. 什么时候创建
+- ng在使用的时候，页面只要存在ng-app，就会创建一个scope，名字就是$rootScope
+- scope就好比是这个HTML标签后面的对象，支持他的对象。
+- 在标签中凡是创建一个控制器，那么就会自动的创建一个scope，叫做$sope
+- 凡是scope都有个特点，就是它好像就是HTML标签背后的对象，凡是在HTML标签中使用ng-model，或ng-click等操作时，就是在scope上添加属性或方法。
+2. 它们之间的关系
+- 子节点上的scope原型继承于当前节点上的scope
+
+### config
+.config配置，意思是子啊程序运行之前需要自行的事情(路由)
+
+### run
+.run运行，在程序运行的时候进行执行
+
+### 将ng称为MVC框架
+- M,V,C一般是使用控制器去操作数据，显示视图是数据与视图的桥梁(调度者)
+- 在ng中使用数据程度大大超过控制器，因此有一大部分人认为ng不是一个纯粹的MVC框架
+- 而在ng中基于视图的数据被大大的放大了
+    + 数据源(model)与视图的数据还不是一一对应的关系
+    + 一般为了数据的安全与用户体验，会考虑将数据进行包装
+- 真正的数据库中与显示出来的数据不一致
+    + 控制器负责装换(传统)
+    + 抽象一个ViewModel的对象(微软WPF)
+        * 该对象的数据来源于原始的数据(数据库中的数据)
+        * 但是它负责转化
+        * 它还负责双向绑定(改界面的数据，ViewModel就跟着改，反之也一样)
+        * 控制器只要作为一个桥梁就行，此时的控制器好像没有非常主要的作用，弱化C，强化VM的功能
+    + 在ng中$scope就是ViewModel，因此有部分认为ng是MVM的框架
+
+### 秒表
+angular中setInterval是异步的，不能更新视图
+可以采用$scope.$apply()强制异步刷新
+
+### 表达式
+JS：使用运算符与数据组织起来的有结果的代码就是表达式，注意不带有分号。
+ng：基本上是基于传统的表达式的概念。首先在ng中的表达式数据不声明不会报错。
+    ng中所有的ng-xxx的赋值，或{{}}里面的值都是ng表达式
+
+### 面试题
+```
+var o={
+    name:'o',
+    func:function(){
+        console.log(this.name);
+    }
+};
+var oo={
+    name:'oo'
+};
+(oo.foo=o.func)();//undefined
+//o.func将值取出来赋值给oo.foo，在JS中对象的值是地址，就是将函数func的地址赋值给foo
+//然后用地址调用，找不到，所以输出undefined
+```
+
+### 过滤器 filter
+将一个事物以另一种形式展现出来
+
+### $watch
+- $scope有一个方法叫做$watch
+- 这个方法有两个参数
+- 第一个参数表示要监听哪一个变量
+- 第二个参数是一个函数，用于监听变量值的变化，凡是变量的值发生变化，这个函数就会被调用
+
+### 指令 directive
+字面意义：按照某些指令去做某些事情，所谓的指令其实就是一个命令
+- ng-app
+- ng-controller
+- ng-model
+- ng-click
+指令就是一个命令，让ng去按照我们的规则做一些事情
+- ng-bind
+- ng-bind-html
+    + 注入漏洞攻击
+        * <input type="text" value="+???+">
+        * 如果用户输入的是 " onload="alert(123)
+        * <input type="text" name="" onload="alert(123)">
+    + XSS
+        * 黑客没有办法登录你的系统，但是它可以作为游客留言给管理员
+        * 如果黑客写一个恶意的文本，如果管理员不打开它没有问题
+        * 但是一打开这个文本就会触发里面的js代码，就可能被黑掉
+- ng-repeat
+    + ng-repeat='item in date'
+    + ng-repeat='(key,value) in data'
+- ng-class
+    + 取值是一个对象
+    + 就是class属性，但是这个class属性会比原生的class要强大
+    + ng-class='{类名1:值1,类名2:值2,...}'
+    + ng-class='类名1:isRight,类名2:!isRight'
+    + ng-class='类名1:value=='123',类名2:value!='123'
+- ng-cloak
+    + 凡是ng里面的代码都有可能会闪一下，加一个ng-cloak，
+    + ng
+    + 会给每一个元素加一个属性display:none
+- ng-hide
+- ng-show
+
+### 页面闪的原因
+1. 闪一下的原因就是ng处理需要时间
+2. ng在处理之前，代码时写成了标签中的文本
+3. 这个文本会被浏览器直接显示出来
+4. 一旦ng加载完成后，那么就会处理页面中的元素，因此就看不到了
+5. 可以使用ng-bind去代替插值语法
