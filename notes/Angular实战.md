@@ -242,8 +242,125 @@ ng-model="userInfo.autologin"
 angular帮我们增强了这种对类名的写法
 7. ngAnimate
 
-
 ### 指令
+1. 匹配模式restrict
+- E 元素`<hello></hello>`
+- C 注释`<!-- directive:hello -->`(两边一定要加空格)
+- M 类`<div class="hello"></div>`
+- A 属性`<div hello></div>`
+- 推荐使用元素和属性的方式使用指令
+- 当需要创建带有自己的模板的指令时，使用元素名称的方式创建指令
+- 当需要为已有的HTML标签增加功能时，使用属性的方式创建指令
+2. template、templateUrl、$templateCache
+- template：最终要显示的HTML标签
+- templateUrl：将模板写成一个独立的HTML文件
+- $templateCache：要在其他模板中使用这个模板时，使用angular将模板缓存起来
+    + 注射器加载完所有的模块时执行一次run方法
+    + 用angular内置对象$templateCache的put方法将文件缓存起来
+    + 在指令中调用内置对象$templateCache的get方法获取出缓存的模板
+    ```
+    mainApp.run(function($templateCache){
+        $templateCache.put('hello.html','<div>Hello everyone!!!</div>');
+    });
+    mainApp.directive('hello',function($templateCache){
+        return {
+          restrict:'ECMA',
+          template:$templateCache.get('hello.html'),
+          replace:true
+        };
+    });
+    ```
+3. replace与transclude
+- 如果想在指令标签中嵌套别的元素时
+- 将replace设置为true是不可行的
+- 在模板里面添加一个div属性ng-transclude
+```
+transclude:true,
+template:'<div>Hi everyone!<div ng-transclude></div></div>'
+```
+4. compile与link(操作元素、添加CSS样式、绑定事件)
+angular执行的三个阶段；
+- 加载阶段
+    + 加载angular.js，找到ng-app指令，确定应用的边界
+- 编译阶段
+    + 遍历DOM，找到所有的指令
+    + 根据指令代码中的template、replace、transclude转换DOM结构
+    + 如果存在compile函数则调用
+- 链接阶段
+    + 对每一条指令运行link函数
+    + link函数一般用来操作DOM、绑定事件监听器
+compile与link区别：
+- compile函数用来对模板自身进行转换，而link函数负责在模型和视图之间进行动态关联
+- 作用域在链接阶段才会被绑定到编译之后的link函数上
+- compile函数仅仅在编译阶段运行一次，而对于指令的每一个实例，link函数都会执行一次
+- compile可以返回preLink和postLink函数，而link函数只会返回postLink函数
+- 如果需要修改DOM结构，应该在postLink中来做这件事情如果在preLink中做这件事情会导致错误
+5. 指令与控制器之间的交互
+- 指定一个loader属性
+- 当我们鼠标滑动在上面时候，angular加载数据
+- 监听鼠标的滑动事件
+- 用指令中的link属性来完成 
+- link函数一共有四个参数，scope，element，attrs，父控制器
+- 给元素绑定一个事件，用bind注册
+- 在当前作用域调用根节点上的loadData方法
+- 也可以借用$apply()，里面直接写要调用的函数字符串
+- 如果指令要在另一个控制器中使用
+- 我们要给指令标签添加一个属性
+- 将如何加载数据的方法传入属性
+- 在指令内部通过属性获取方法，但是要注意，方法名是小写
+- 通过$apply()调用
+- 指令的复用
+6. 指令间的交互
+- 通过指令内部的controller暴露方法
+- link函数出来指令内部的事物
+- 指令中通过require将其他指令依赖于一个指令
+- link函数就可以指定第四个参数
+- 就可以调用到公共指令中暴露出来的方法
+7. scope的类型与独立scope
+- 当我们用模板创建出4个表单是，操作一个会对其他的也有影响
+- 需要在指令中加入scope:{}
+- 这样指令之间就互相独立了，互不影响
+8. scope的绑定策略
+- @把当前属性作为字符串传递。还可以绑定来自外层scope值，在属性值中插入{{}}即可
+- =与父scope中的属性进行双向绑定
+- &传递一个来自父scope的函数，稍后调用
+9. AngularJS内置的指令
+- `a`扩展的功能，比如href为空时，angular会创建一些默认的行为
+- `form`
+    + HTML原生的form表单是不能嵌套的，而Angular封装之后的form可以嵌套
+    + Angular为form扩展了自动校验、防止重复提交等功能
+    + Angular对input元素的type进行了扩展
+        * text、number、url、email、radio、checkbox、hidden、button、submit、reset
+    + Angu为表单内置了4种CSS样式
+        * ng-valid、ng-invalid、ng-pristine、ng-dirty
+    + 内置校验器
+        * require、minlength、maxlength
+    + required：angular内部自动会校验
+    + myForm.$invalid根据表单校验状态，来实现ng-disabled的功能
+    + contentEditable可以将div变成可以修改状态
+- `input`模拟输入框
+- `ngApp`angular的入口函数
+- `ngBind`数据模型的双向绑定
+- `ng事件名`angular帮我们绑定的各种事件
+- `ngInclude`缓存模板
+10. 实例解析Expander
+- 定义一个控制器
+- 添加一个expander指令
+- expender-title绑定策略
+- 模式可以是元素也可以是标签
+- 可以被替换
+- 内部内容可以变换
+- 用等值绑定绑定上面的expenderTitle这个东西
+- 模板中添加的元素有一个点击事件
+- 这个方法是由指令的link中使用的，外部不能使用
+- ng-show是用来显示或是隐藏的
+11. 实例解析Accordion
+12. 指令的运行原理：compile和link
+13. ERP类型的系统必备的UI组件
+14. 互联网/电商型系统必备的UI组件
+15. 第三方指令库angular-ui
+16. Directive四星的起源和原理概述
+
 ### Service
 ### Provider
 ### 表单
