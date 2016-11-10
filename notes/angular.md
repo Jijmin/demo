@@ -482,3 +482,301 @@ var oo={
 3. 这个文本会被浏览器直接显示出来
 4. 一旦ng加载完成后，那么就会处理页面中的元素，因此就看不到了
 5. 可以使用ng-bind去代替插值语法
+
+### 异步与同步
+1. 同步执行：
+- 简单的来说，不在一个我们谅解或定义的代码顺序中执行
+- js代码，从上往下执行，而且如果上面不执行完，下面就不会开始(代码是线性执行的)
+2. 异步：
+- 愿意是将两段代码一起执行，不在一条线上，但是在JS中是单线程
+- 一次只能处理一个内容，浏览器开始设计的时候就只允许执行一个东西
+- 设计浏览器的时候设计了setInterbal和setTimeout，方这两个方法造成一个假象，然我们觉得是一起执行的。
+- 函数的执行时间很短(函数代码一般都不长，所以很快就可以执行完)
+- 由浏览器内部按照规定的时间(估计值)
+- 在时间内执行以下函数(在函数中切换)
+3. interval.timeout
+- 在JS中所有的时间或方法或函数本质都是一样的
+- 凡是不在当前线性执行的代码中执行的函数(interval.timeout)
+- 实际上都会被放到一二称为事件队列的东西里面(队列、往后方法)
+- setInterval或setTime中代码不在当前代码结构中执行
+
+### ng-repeat
+- 将一个集合(数组，键值对)进行遍历(for遍历，for-in遍历)
+- 一般改指令放在特定的标签中，凡是使用该指令的标签会被重复的创建，并填充指令的数据
+- 一般使用的tr,li,div
+- ng-repeat='项 in 数组'
+- ng-repeat='(键，值) in 对象'
+
+### 内置指令
+1. ng-switch
+```
+<ele ng-switch [on="表达式"]>
+    <ele eg-switch-when="1">111</ele>
+    <ele eg-switch-when="2">111</ele>
+    <ele eg-switch-defualt>111</ele>
+</ele>
+```
+2. ng-src
+img的src地址是插值语句时，使用ng-src可是让浏览器先不解析插值语句
+3. ng-href
+
+### 其他指令
+1. ng-checked
+2. ng-disabled
+3. ng-readonly
+4. ng-selected
+
+### 常见事件指令
+1. ng-blur
+2. ng-change
+3. ng-copy
+4. ng-dbclick
+5. ng-focus
+6. ng-submit
+
+### 第三方指令
+angular-ui.github.io
+
+### 什么是指令
+- 指令简单的理解就是给html标签添加一些属性(属性使用ng开头)，增加了这些属性以后
+- ng加载完成时会对含有ng-属性的标签进行再处理，方法有：增，删，改
+
+### 自定义指令
+1. ng中所有的功能都应该挂在模块上
+```
+angular.module('mainApp.myDirective',[])
+       .directive('zyApp',function(){//驼峰命名
+            //返回一个对象，这个对象决定了如何处理该属性所在的标签
+            return{
+                //固定语法
+                template:'<div>指令</div>'
+            }
+        })
+```
+2. 将自定义的指令注入到模块中
+```
+angular.module('mainApp',['mainApp.myDirective']);
+```
+
+### 指令对象属性
+1. transclude
+- 我们定义的指令只能按照我们的自己的template的形式输出
+- 在定义指令的时候使用transclude并设置其值为true
+- 转置->装换
+- 需要获得数据的标签中需要使用ng-transclude指令
+```
+transclude:true,
+template:'<span ng-transclude></span>'
+```
+- 需要在哪个标签上写东西就在哪个添加ng-transclude
+2. replace
+- 替换
+- 例如需要在页面中增加一个轮播图
+- 提前将轮播图写成指令
+- 然后定义一个指令名zy-scoll
+- 我们只想要将轮播图放入，外面的框不加进去
+- replace的取值为true或false
+- 表示是否使用模板的HTML替换含有指令的标签
+3. templateUrl
+- 在复杂的指令中，需要处理的页面很复杂代码很多，就可以将这个html放在一个独立的文件中
+- 然后在templateURL中使用它的地址，那么页面打开后，会利用xhr将其加载进来
+- 缺点：需要服务器
+4. scope
+- 指令的独立作用域
+- 它的功能就是表示这个指令是独立的，不与父节点的$scope混淆
+- 如果希望指令可以利用属性传参数给模板
+    + 在指令中使用的属性名，必须定义在scope中
+    + 并且scope中指令的属性名的取值是@
+    + 在模板中即可使用该名字作为插值
+5. restrict
+- 凡是页面中需要轮播图的就是用语法
+- <zy-scoll><zy-scoll>
+- restrict表示采用什么方式去表示指令，或是使用指令
+- 它的取值是一个字符串 'E'(直接当标签使用),'A'(当做属性使用),'C'(当做类来使用),'M'(当做注释使用)
+6. template
+- 直接写html代码
+
+### link方法
+在ng中一般不推荐使用DOM操作，但是如果非要实现DOm操作，在指令中可以添加link方法
+```
+return {
+    link:function(){
+        //DOM操作
+    }
+}
+========
+return function(){
+    //DOM操作
+}
+```
+
+### jqlite
+- 在ng中如果非要使用DOM操作，ng给我们提供了一个轻量级的jQuery，叫做jqlite
+- 使用angular.element()方法代表jq中的$()
+- 但是在 ng 中不支持 选择器, 需要单独将 dom 当进来
+
+### typeof
+typeof可以鉴别当前作用域中是否含有某一个变量
+
+[ionic](www.ionic.wang)
+
+### 配置与运行
+1. 在ng中模块还有两个常用的方法
+2. .config()
+- 配置，凡是在运行之前需要处理的数据都应该写在这里
+- 这是ng中唯一一个运行前可配置数据的地方
+- 它的参数是一个可注入的函数
+- $routeProvider对象的创建者
+3. run()
+- 运行时进行调用，凡是在运行时处理的数据都可以写在这里
+- 这里可以认为是运行代码的入口
+- 相当于ng-init
+- 可以对某些数据初始化时使用
+- 需要的参数是一个可注入的函数
+
+### 服务service
+- 凡是注入的名字都是服务
+
+### 创建服务
+1. 注意服务就是一个对象(广义，一个数字也称为对象)，一个可以内注入进来的对象
+2. 使用语法
+```
+模块.factory('服务的名字',['$zz',function($zz){
+    return 对象
+}])
+```
+3. 使用的时候注入即可
+```
+angular.module('loginData',[]).factory('zygzw',function(){
+    return {
+      name:'zy',
+      pwd:'1133'
+    };
+  });
+  angular.module('mainApp',['loginData']).run(['$rootScope','zygzw',function($rootScope,zygzw){
+      $rootScope.message='消息';
+      console.log(zygzw);
+  }]);
+```
+3. 其他方法创建服务
+- service('服务名',构造函数)
+- constant('服务名',常量)唯一一个可以在config之前可以被注入的
+- value('服务名',常量)不能在config之前注入
+- provider('服务名',{必须带有$get方法的对象})
+
+### 常见的服务
+1. $http
+- 主流的用法
+    + $http({配置信息}).then(success,error)
+- 常用用法promise(对象)
+    + $http.get(url).then()
+    + $http.jsonp('支持jsonp的网站地址?callback=JSON_CALLBACK')
+2. $log
+- $log.log();
+- $log.warn();
+- $log.error();
+- $log.debug();
+3. $location
+- $location.url('/1.html');//跳转到指定页面，不传参数就是获取当前页面的路径
+- $location.absUrl();//打印绝对路径，传入参数没有进行跳转
+- $location.search();//获取url后面的参数
+- $location.hash();
+4. $window
+5. $timeout
+6. $interval
+- 不需要使用apply()显示
+- 但是不能停止
+- 可以先打印出来$interval
+- 用一个$window的属性接收
+
+### 路由route
+- 首先路由是ng实现单页面应用程序的核心内容
+- 获得url并解析它的锚
+- 什么时候解析？
+    + window.location.href
+- 怎么解析？
+    + indexOf('#')再使用slice()
+    + 正则
+    + 利用a标签
+- 如果进来的时候有a,b,c分别显示你好，吃了吗，开心吗，其他显示连接错误
+    ``` 
+    window.onhashchange=function(){
+         var a=document.creatElement('a');
+         a.href=window.location.href;
+         var hash=a.hash.slice(1);
+         var dv=document.querySelectorAll(.dv)[0];
+         switch(hash){
+            case 'a':dv.innerHTML='你好';break;
+            case 'b':dv.innerHTML='你吃了吗';break;
+            case 'c':dv.innerHTML='你开心吗';break;
+            default:dv.innerHTML='链接错误';break;
+         }
+    }
+    ```
+- 路由可以修改地址
+
+### 定义路由
+1. 引入ngRoute模块
+2. 在页面中准备一个容器<ng-view>
+3. angular.module('...',['ngRoute'])
+4. 在config方法中配置路由数据
+- 利用注入语法注入$routeProvider对象
+- $routeProvider有两个方法when(),otherwise()
+- 这个方法的参数有两个
+    + 路由hash(不带#)
+    + 第二个参数是一个对象，其中包含template或templateUrl属性
+    ```
+    angular.module('mainApp',[]).config(function($routeProvider){
+        $routeProvider.when('/',{
+            template:'<div>111</div>'
+        }).when('/',{
+            template:'<div>111</div>'
+        }).otherwise({
+            redirectTo:'/'
+        })
+    })
+    ```
+5.  触发路由的行为需要使用a标签`<a href="#/">信息</a>`
+
+### Vue.js
+1. vuejs.org
+2. vuejs cn
+3. 看示例
+4. 看指南
+5. 看介绍，会将核心内容展示出来
+6. 再看看左侧菜单栏
+7. 看好一个例子，用自己的语言理解
+8. 开始上手写例子，不要在看文档
+9. 一定要动手操作
+10. 出来错没有关系，先看看错误
+11. 可以自己类比添加一些东西
+12. 如果出现错误，带着问题去继续看文档
+13. 如果有点熟悉了，想要了解更多可以看看API
+14. 每次试新的例子的时候一定要重新再建一个页面，重新开始写
+15. vue不允许直接给body加东西
+16. 要类比学过的东西
+17. 文档中有click方法，这时可以自己尝试做一个鼠标移入移除事件的案例
+18. 函数中我们应该先看看this对象
+19. 然后也要看看arguments
+20. 找到我们需要的DOM对象
+21. 函数中有一个v-model，直接自己尝试些自己想要的例子
+22. 最后看API查漏补缺
+23. 将基础看完就看示例
+24. 如果不能做就看看进阶部分的知识点
+
+### jkstorage.js
+1. 我们可以使用本地的localstorage存取数据
+2. 全局范围内有一个dbs对象
+3. 默认含有一个mater数据库(内存)
+4. 增删改查
+5. 增加dbs.insert({...})//存到master中
+6. 查询
+- dbs.findAll()->[]
+- dbs.find({...})->[]
+- dbs.findOne({...})->Object
+7. 删除dbs.remove({...})
+8. 修改dbs.updata({.查询的.},{.修改的.})
+9. 创建数据库，创建表
+10. 创建数据库dbs.use(数据库名)
+11. 创建表dbc.createCollection(表名)
+12. 使用表dbs.useCollection(表名)
