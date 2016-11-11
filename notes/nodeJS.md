@@ -121,7 +121,106 @@ seajs.use(['./cals/cals.js','./dom/dom.js'],function(obj1,obj2){
 3. 当鼠标移出元素时会调用out回调函数
 
 #### 字母旋转的小案例
-//TODO
+1. 定义一个控制游戏的模块
+```
+define(function(require,exports,module){});
+```
+2. 引入jQuery
+```
+var $=require('../jquery.js');
+```
+3. 定义一个构造函数让所有的容器下的图片运动起来
+```
+var RotateWord=function(id){};
+```
+4. 得到容器对象及下面所有的图片
+```
+this.container=$(id);
+this.items=this.container.children();
+```
+5. 定义一个方法的数组，用来存放方法
+```
+this.arr=[];
+```
+6. 将方法、属性、对象暴露出去
+```
+module.exports=RotateWord;
+```
+7. 定义一个随机数的方式
+```
+var random=function(num){
+  return Math.random()*num;
+};
+```
+8. 添加初始化图片的对象
+```
+RotateWord.prototype={
+    constructor:RotateWord,
+    init:function(){
+        //.....
+    }
+}
+```
+9. 给每个图片添加hover事件
+```
+$(this.items).each(function(index,item){
+    var time,obj=$(item);
+    obj.hover(function(){
+        //...
+    },function(){
+        //...
+    });
+```
+10. 鼠标移入透明度变为1，旋转归位
+```
+obj.css('opacity',1).css('transform','rotate(0deg)');
+```
+11. 鼠标移出后，透明度要归位，延迟旋转
+```
+obj.css('opacity',0.5);
+time && clearInterval(time);
+time=setInterval(rotateFn, Math.ceil(random(5000)));
+```
+12.旋转函数，随机生成一个旋转度数
+```
+function rotateFn(){
+  obj.css('transform','rotate('+random(360)+'deg)');
+}
+```
+13. 将每个元素的旋转函数存入定义好的数组中
+```
+arr[index]=rotateFn;
+```
+14. 在默认情况下图片元素有旋转
+```
+rotate:function(){
+  $(this.arr).each(function(n,fn){
+    setInterval(fn, Math.ceil(random(3000)));
+  });
+},
+```
+15. 开启动画效果
+```
+render:function(){
+  this.init();
+  this.rotate();
+}
+```
+16. 在控制文件中导入我们写好的模块
+```
+define(function(require,exports,module){
+  var RotateWord=require('./rotateWord.js');
+})
+```
+17. 实例化构造函数，调用渲染方法
+```
+var obj=new RotateWord('#container');
+obj.render();
+```
+18. 在主界面使用模块
+```
+seajs.use("./gamejs/gameControl.js",function(obj){});
+```
 
 ### requirejs
 1. [require.js](requirejs.org)
