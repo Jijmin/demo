@@ -176,9 +176,83 @@ modules下最好再有一个common目录来存放公共的东西
     + 对于正常的用户的访问，服务器响应AngularJS应用的内容
     + 对于搜索引擎的访问，则响应专门针对SEO的HTML页面。
 3. 性能问题
+作为MVVM框架，因为实现了数据的双向绑定，对于大数组、复杂对象会存在性能问题
+可以用来优化Angular应用婆娘个的性能的办法：
+- 减少监控项(比如对不会变化的数据采用单向绑定)
+- 主动设置索引(指定track by，简单类型默认用自身当索引，对象默认使用$$hashkey，比如改为track by item.id)
+- 降低渲染数据量(比如分页，或者每次取一小部分数据，根据需要再取)
+- 数据扁平化(比如对于树状结构，使用扁平化结构，构建一个map和树状数据，对树操作时，由于跟扁平数据同一引用，树状数据变更会同步到原始的扁平数据)
+- 另外对于Angular 1.x，存在脏检查和模块机制的问题。
+- 在移动端可尝试Ionic，但是并不完善
 
-### 如何看待angular1.2中引入的Controller  as语法？
+### 如何看待angular1.2中引入的Controller As语法？
+1. 在angular 1.2以前，在view上的任何绑定都是直接绑定在$scope上的
+2. 使用controllerAs，不需要再注入$scope，Controller变成了一个很简单的JavaScript对象，一个更纯粹的ViewModel
+```
+function myCtrl(){
+    //使用vm捕获的this可避免内部的函数在使用this时导致上下文改变
+    var vm=this;
+    vm.a='aaa';
+}
+```
+3. 从源码实现上来看，controllerAs语法只是吧controller这个对象的实例用as别名在$csope上创建了一个属性
+```
+if(directive.controllerAs){
+    local.$scope[directive.controllerAs]=controllerInstance;
+}
+```
+4. 还可以避免遇到AngularJS作用域相关的坑(js原型链继承中值的类型继承。因为使用ControllerAs的话view上所有字段都绑定在一个引用的属性上)
+```
+<div ng-controller="TestCtrl as vm">
+    <p>{{name}}</p>
+    <div ng-if="vm.name">
+        <input type="text" ng-model="vm.name">
+    </div>
+</div>
+```
+5. 没有注入$scope，导致$emit、$broadcast、$on、$watch等$scope下的方法无法使用
+6. 可以将跟事件相关的操作封装起来统一处理，或是在单个controller中引入$scope特殊对待。
 
 ### 详述angular的"依赖注入"
+1. 依赖注入是一种设计模式，目的是处理代码之间的依赖关系，减少组件间的耦合
+2. 我们没有使用AngularJS的时候，想从后台查询数据并在前端显示
+3. 参数必须要传人，不然会报错，定义的时候依赖了，运行时不会自动查找依赖项
+4. 在使用Angular中，自动就帮我们做了$scope和$http两个依赖性的注入
+5. Angular是通过构造函数的参数名字来推断依赖服务的名称的
+6. 通过toString()来找到这个定义的function对应的字符串
+7. 然后用正则解析出其中的参数(依赖项)，再去依赖映射中取得到对应的依赖，实例化之后传入
+```
+angular.module('mainApp',[]).controller(function($scope){});
+```
+8. 上面这种方式假设函数的参数名就是依赖的名字，然后去查找，angular会自动解析
+9. 但是通过代码压缩后，参数会被重命名，angular就无法解析到依赖项
+10. 因此会使用下面两种方式注入依赖(对依赖添加的顺序有要求)
+- 数组注释法
+```
+mainApp.controller('myCtrl',['$scope',function($scope){
+    //...
+}]);
+```
+- 显示$inject
+```
+mainApp.controller('myCtrl',myCtrl);
+function myCtrl=($scope,$http){
+    //...
+}
+myCtrl.$inject=['$scope','$http'];
+```
+11. 对于一个DI容器，必须具备三个要素：
+- 依赖项的注册
+- 依赖关系的声明
+- 对象的获取
+12. module和$provide都可以提供依赖项的注册
+13. 内置的injector可以获取对象(自动完成依赖注入)
+14. 对于module，传递参数不止一个，代表新建模块，空数组代表不依赖其他模块
+15. 只有一个参数(模块名)，代表获取模块
 
 ### 如何看待angular2
+1. 相比于Angular 1.x，Angular2的改动很大，几乎算是一个全新的框架
+2. 基于TypeScript，在大型项目团队协作时，强语言类型更有利
+3. 组件化，提升开发和维护的效率
+4. 还有module支持动态加载，new router，promise的原生支持等等
+5. 迎合未来的标准，吸纳其他框架的优点，同时要学的东西也更多(ES next、TS、Rx等)
