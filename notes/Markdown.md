@@ -41,3 +41,6 @@
 
 ### 下划线
 > ---
+
+### JSFormat
+在已压缩的JS文件中，右键选择jsFormat或者使用默认快捷键（Ctrl+Alt+F）
