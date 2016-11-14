@@ -133,5 +133,54 @@
 3. import只有在IE5以上才能识别，link无兼容问题
 4. link方式的样式的权重高于@import的权重
 
+### jQuery框架中$.ajax()的常用参数有哪些？
+- type
+    + 类型：String
+    + 默认值：GET
+    + 请求方式POST、GET、PUT、DELETE
+- url
+    + 类型：String
+    + 默认值：当前页地址。
+    + 发送请求的地址
+- success
+    + 类型：Function
+    + 参数：由服务器返回，并根据dataType参数进行处理后的数据，描述状态的字符串
+    + 请求成功后的回调函数，这是一个Ajax事件
+- options
+    + 类型：Object
+    + 可选：AJAX请求设置
+- async
+    + 类型：Boolean
+    + 默认值：true。默认设置下，所有请求均为异步请求。
+    + 同步请求将锁住浏览器，用户其他操作必须等待请求完成才可以执行
+- beforeSend(XHR)
+    + 类型：Function
+    + 发送请求前可修改XMLHttpRequest对象的函数
+    + XMLHttpRequest对象是唯一的参数
+    + 这是一个Ajax事件。如果返回false可以取消本次ajax请求
+- cache
+    + 类型：Boolean
+    + 默认值："application/x-www-form-urlencoded"。发送信息至服务器时内容编码类型。
+    + 默认值适合大多数情况。如果你明确地传递了一个content-type给$.ajax()  那么它必定会发送给服务器（即使没有数据要发送）
+- data
+    + 类型：String
+    + 发送到服务器的数据。将自动转换为请求字符串格式。
+    + GET请求中将附加在URL后。
+    + 必须为Key/Value格式。如果为数组，jQuery将自动为不同值对应同一个名称。
+    + 如{foo:["bar1", "bar2"]}转换为'&foo=bar1&foo=bar2'。
+- dataFilter
+    + 类型：Function
+    + 给Ajax返回的原始数据的进行预处理的函数。
+    + 提供data和type两个参数
+    + data是Ajax返回的原始数据
+    + type是调用jQuery.ajax时提供的dataType参数
+    + 函数返回的值将由jQuery进一步处理。
+- dataType
+    + 类型：String
+    + 预期服务器返回的数据类型。
+- error
+    + 类型：Function
+    + 默认值：自动判断(xml或html)。请求失败时调用此函数。
+
 ### 解释什么是sql注入，xss漏洞
 ### FF与IE中如何阻止事件冒泡，如何获取事件对象，以及如何触发事件元素

@@ -475,9 +475,258 @@ if(content!=null){
 }
 ```
 
+### 知识梳理
+- JD
+- JS基础部分
+    + 基础语法
+    + DOM
+    + 特效
+- jQuery
+- HTML5中的新标签
+- CSS新的样式
+- ajax在浏览器中通过ajax技术去服务器中异步获取数据
+- 移动web 不同屏幕尺寸的兼容问题
+- JS的面向对象
+- canvas
+- JS的框架的封装
+- JS的流行框架
+- nodejs基础
+- nodeJS项目
+    + 后台nodeJS+mySQL(pc)+移动端(移动Web,ajax)
+    + 推广：微信开发
+- 移动APP
+
+### global
+- 全局对象
+    + setInterval
+    + setTimeout
+    + process
+        * abort结束当前文件的执行
+        * arch得到当前系统的版本
+        * argv得到当前文件执行的参数
+            - 第一个参数对应当前文件执行的nodejs路径
+            - 第二个参数文件的绝对路径加参数名
+        * env.path输出当前系统的环境变量
+        * stdout.write()
+        * stdin.on('readable',function(){})
+        * stdin.read()
+    + process.nextTick
+    + 作用：所有的nodejs环境中的文件都可以使用到同一个全局对象
+- 伪全局对象
+    + __dirname
+    + __filename
+
+## commonJS
+#### ECMAScript缺点
+由于nodejs是用JavaScript来写的，JavaScript遵守ECMAScript规范，而ECMAScript这个规范(如果作为一门后台语言的规范)是不完整的，因为它内容仅仅只是规范了JavaScript的：词法、类型、表达式、方法、对象等基本要素。
+如果使用ECMAScript来作为规范还是有下面几大缺点：
+- 没有模块系统(不方便扩展)
+- 标准库较少，对于文件系统，I/O流等常见的需求没有标准的API
+- 没有标准接口，缺少如：WEB服务器、数据库的统一接口
+而nodejs作为一门后台语言，它必须有自己的很多基本功能，而这些功能需要有人来规范有，commonjs就是起的这样一个规范。
+
+#### commonjs是一种后台语言的规范
+1. JavaScript必须像后台语言一样具有拥有开发大型web服务器的能力
+2. commonjs覆盖了：二进制、字符集编码、I/O流、web服务器...
+3. 规范了模块与模块之间的引用关系
+- 不需要使用关键字就可以定义模块
+- exportes暴露接口
+- require引用模块
+4. 所以commonjs是nodejs的一个规范，他的规范使得nodejs具有开发服务器的可能
+5. CMD，AMD规范了JS模块与模块之间的引用关系
+- define定义模块
+- exportes暴露接口
+- require引用模块
+
+### nodeJS服务器语言
+1. 开启服务的能力
+2. 文件读写的能力
+
 ## nodejs中的核心模块
+
+#### 什么是核心模块
+commonjs规定的好的功能在nodejs实现了，这样的一些模块我们叫做核心模块。也就是说nodejs中所有文档中给出的api都是核心模块，而我自己写的模块我们称为用户模块
+
+#### path核心模块
+1. 引入path的核心模块
+```
+var path=require('path');//引用核心不需要加路径和后缀
+```
+2. 得到传入路径的文件名`basename`
+```
+var baseName=path.basename('D:\\11\\1.png');//1.png
+```
+3. 得到传入路径的所在路径`dirname`
+```
+var dirname=path.dirname('D:\\11\\1.png');//D:\\11
+```
+4. 注意点：Windows下的路径是以盘符开始中间文件所在的文件夹名最后是文件名，Linux、Unix路径是以/开始，中间是文件所在的文件夹名，最后是文件名，在非Windows操作系统是没有盘符的
+5. nodeJS中基本都是跨平台的
+6. 得到传入路径中文件的扩展名`extname`
+```
+var extName=path.extname('D:\\11\\1.png');//.png
+```
+7. 得到这个路径中的文件名不包含扩展名`basename`
+```
+var baseName=path.basename('D:\\11\\1.png','.png');//1
+```
+8. 将路径转换为一个对象，需要什么属性直接点出来就可以`parse`
+```
+var parse=path.parse('D:\\11\\Itcast\\workspace\\nodeJS\\day3\\nodeJS.md');
+/*{ root: 'D:\\',
+    dir: 'D:\\11\\Itcast\\workspace\\nodeJS\\day3',
+    base: 'nodeJS.md',
+    ext: '.md',
+    name: 'nodeJS' }*/
+```
+9. 将一个路径对象转换成字符串`format`
+```
+var parse=path.format(
+    { root: 'D:\\',
+      dir: 'D:\\11\\Itcast\\workspace\\nodeJS\\day3',
+      base: 'nodeJS.md',
+      ext: '.md',
+      name: 'nodeJS' }
+);
+```
+10. 将多个路径组合成一个完整的路径，认识../,./，解析不规则路径`join`
+```
+var pathAll=path.join('aa\\bb','cc');//aa\bb\cc
+```
+11. 得到当前系统的分界符`delimiter`
+```
+var pathArr=process.env.path.split(path.delimiter);
+```
+
+#### URL核心模块
+1. url组成：
+    - 协议+用户名和密码+服务器的ip地址+端口号+请求地址+页面参数+页面hash值
+2. 引入url核心模块`require('url')`
+3. `url.parse(urlString)`将一个url字符串转化为为一个url对象
+4. `url.format({...})`将一个url对象转换为一个字符串
+5. `url.resolve(from,to)`将两个url组合起来
+
+#### 核心模块queryString
+1. require('querystring');引入querystring模块
+2. 将字符串类型的参数转换成一个参数对象`querystring.parse(str)`
+3. 将对象转换成一个字符串`querystring.stringify({...})`
+4. 转码`querystring.escape`
+5. 解码`querystring.unescape`
+
 ## 文件模块
+
+#### 什么是文件模块
+nodejs中的核心模块都集成到了node.exe之中，将来不管是引用还是使用都非常方便，但是有node.exe之中给我们准备的模块有限，有很多功能没有被包含在核心模块之中。所以在实际开发过程中我们会根据自己的需求去开发一个自己模块。像这种模块没有集成到node中的自己开发的模块我们叫做文件模块，或者叫做用户模块，再或者是第三方包模块。
+
+#### 自己开发一个计算器
+##### 版本一：
+- add.js
+```
+function add(x,y){
+    return x+y;
+}
+module.exports=add;
+```
+- sub.js
+- index.js所有计算机功能的统一出口
+```
+var add=require('./add.js');
+var sub=require('./sub.js');
+module.exports={
+    add:add,
+    sub:sub
+};
+```
+- use.js
+```
+var calc = require('./index.js');
+console.log(calc.add(1,1));
+console.log(calc.sub(1,1));
+```
+- 代码没有问题，但是将来文件一旦多起来，我们管理起来相当麻烦
+- 我们应该将功能模块(add.js、sub.js、index.js)与程序的入口模块(use.js)分离
+- 分离的时候是将功能模块放到同一个文件夹下，方便管理
+- 在ndoejs中有一个约定，所有的功能模块一定要放在一个文件下这个文件夹的名称是固定的`node_modules`
+
+##### 版本二：
+所有的功能模块一定要放在`node_modules`下，记得要改use.js的文件目录。使用第二种方法来完成计算器也有存在问题：将来如果说一个项目里有多个功能，结构一样混乱，所以我们使用单独的文件夹来将所有同一功能的子模块管理起来。
+
+##### 版本三：
+使用第三种方式完成计算器也存在问题：引用写好的模块的路径越来越长，为了解决这个问题nodejs中规定如果按照了上面的结构写好了一个功能集合，我们把这个功能集合称为“包”，如果当前文件中有一个包，那么将来在使用这个包中的时候，没有必须再写完整的路径了。
+
+##### 版本四：
+```
+var calc = require('calc');
+```
+
+### require的加载过程：nodejs内容自己的约定。
+1. 当nodejs执行reuqire('包名')时nodejs会将这个包当作核心模块来解析
+2. 如果找不到这个核心模块，就会去当前项目的node_modules文件夹下去找包名对应的文件夹
+3. 如果没找到先去当前包中查看是否有package.json的文件
+4. 如果有就加载package.json文件中的main属性对应的模块，如果找到就加载
+5. 如果找不到就会直接去这个文件夹下去找一个名称为index.js的模块，将模块中的内容加载出来
+6. 如果都找不到就报错
+
+### package.json应该如何生成，以及它里面都有哪些属性？
+1. 在当前包所在的文件夹中打开shell窗口，然后输入npm init -y指令，会在当前项目中生成一个package.json的文件
+2. 属性
+```
+{
+  "name": "calc",//设置当前包的名称
+  "version": "1.0.0",//设置当前包的版本
+  "description": "",//当前包的描述（帮助npm进行关键字搜索）
+  "main": "index.js",//当前包的出口模块
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },//执行一段脚本
+  "keywords": [],//当前包的关键字（帮助npm进行关键字搜索）
+  "author": "",//当前包的作者
+  "license": "ISC"//是当前包的一个协议
+}
+
+```
+
+### 什么是包
+就是将一组功能相似的文件模块统一放到一个文件夹下，并且为所有的文件模块设置一个统一的出口文件，这样的文件夹在nodejs中被称为包。
+
+### 一个符合CommonJS规范的包的结构
+- 一个`package.json`文件应该存在于包顶级目录下（必须）
+- 二进制文件应该包含在`bin`目录下(非必须)
+- JavaScript代码应该包含在`lib`目录下（必须）
+- 文档应该在`doc`目录下（非必须）
+- 单元测试应该在`test`目录下（非必须）
+- 使用说明放在`README.md`文件，这个文件必须放在包的顶级目录（必须）
+![一个符合CommonJS规范的包的结构](./commonjs_construction.png)
+
 ## 通过npm来下载和上传文件模块
+
+### 通过npm安装和上传包
+1. 上传
+    1. 创建好一个标准结构的包（注意:一定要满足包的要求），并且在package.json文件中设置好一些参数。
+    2. 去npmjs注册一个账号（登录之后点击图像会弹出下拉框，选择profile，会打开记录发布包的历史记录） 
+    3. 在要发布的文件夹下打开CMD，执行发布指令
+        1. npm adduser:根据引导，依次输入用户名，密码，以及注册邮箱就行了
+        2. 如果看到：`Logged in as xxx on https://registry.npmjs.org/`说明登录成功
+        3. npm publish：看到+ calcczboke3qi@1.0.0指令说明已经上传成功
+2. 撤销
+3. 安装
+    1. 本地安装指令： npm install 包名 [-g]
+
+### npm其它常用指令
+1. `npm adduser` ：会引导输入用户名，密码以及注册邮箱（如果登录成功会显示：`Logged in as xxx on https://registry.npmjs.org/`.）
+2. `npm publish`：发布包
+3. `npm uppublish` 包名@版本号：撤销已经发布的包
+4. `npm install <name>`安装nodejs的依赖包
+5. `npm install <name> --save` 安装的同时，将信息写入package.json中
+6. 项目路径中如果有package.json文件时，直接使用`npm install`方法就可以根据dependencies配置安装所有的依赖包这样代码提交到github时，就不用提交node_modules这个文件夹了。
+7. `npm init` 会引导你创建一个package.json文件，包括名称、版本、作者这些信息等
+8. `npm remove <name>`移除
+9. `npm update <name>`更新
+10. `npm ls`列出当前安装的了所有包
+11. `npm root` 查看当前包的安装路径
+12. `npm root -g` 查看全局的包的安装路径
+13. `npm help` 帮助，如果要单独查看install命令的帮助，可以使用的`npm help install`
+
 ## ES6中的新特性
 ## 通过nodejs的核心模块来操作本地磁盘上面的文件
 ## 同步与异步
