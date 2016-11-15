@@ -727,17 +727,290 @@ var calc = require('calc');
 12. `npm root -g` 查看全局的包的安装路径
 13. `npm help` 帮助，如果要单独查看install命令的帮助，可以使用的`npm help install`
 
-## ES6中的新特性
-## 通过nodejs的核心模块来操作本地磁盘上面的文件
-## 同步与异步
-## 事件驱动
-## socket
-## 小型聊天室
-## HTTP协议
-## 通过nodejs的一些核心模块
-## 我们自己开发一个web服务器
-## 音乐点播网站
-## express框架
-## 改造音乐点播
-## mysql：数据库(安装)，增删改查
-## orm框架：通过nodejs模块来对数据库进行增删改查
+### require加载规则补充
+1. require无论是核心模块还是文件模块都优先从缓存加载（可以解决一个文件多次引用一个文件模块而反复加载的问题）
+2. 在window中加载一个文件模块要使用./或者../开头（如果不加后缀，nodejs会当作用核心模块或者是包来解析）
+3. 在mac和linux中以/加载是加载一个绝对路径的文件模块，而在window下/表示当前require函数所在文件所在的目录的盘符（比如：c盘，没有意义）
+4. 一个文件模块可以不写扩展名,require()会自动依次按照.js .node .json的顺序进行补齐后加载，如果三个扩展名都没有，则当做目录或者包来加载。如果目录或者包都没有，则报错。
+5. 所以如果不加后缀，将来如果一个文件返回的是json，那么它的加载性能会慢一点
+6. 加载一个包，依次按照module.paths数组中的路径，加载传入的包名，如果有，就加载；如果没有，报错
+7. 包加载完毕以后，如果有package.json文件，就去找其中main属性对应的出口文件
+8. 如果没有，就找默认文件index.js
+
+### 调试nodejs
+1. 使用console.log()
+- 使用麻烦，用了以后还要删除
+2. nodejs的自带调试器
+- `node debug a.js`没有任何作用
+3. 使用visual stdio调试
+- 安装vsCode，并且通过vscode打开要调试的文件所在的文件夹
+- 点击F5,选择nodejs的打开方式，这时vsCode会打开一个lanuch.json，修改其中"program"属性，改为"${workspaceRoot}/文件名.js"
+- 可以查看文件的五个全局对象以及添加监控文件中变量的值 
+4. 使用webstorm调试
+
+## ES6中的新语法
+### use strict
+1. ECMA组织在ES5的时候就提出了一个模式，这个模式就是严格模式
+2. 开启严格模式:use strict
+3. 严格模式下变量必须定义以后才能使用
+4. 严格模式下方法不能定义多个同名参数
+5. ......
+6. 严格模式的好处
+    1. 消除JavaScript语法的一些不合理、不严谨之处，减少一些怪异行为
+    2. 消除代码运行的一些不安全，保证代码的安全
+    3. 提高编译器效率，增加运行速度
+    4. 为将来新版本的JavaScript做铺垫
+
+### 使用let关键字定义常量
+1. 在JavaScript中的var一直有bug
+    1. 变量提升
+    2. 没有块级作用域
+    3. 重复多次定义一个变量
+2. let的特点
+    1. let声明的变量不会有变量提升
+    2. 有块级作用域(当大括号结束时，块级作用域中的变量都会被销毁)
+    3. 不允许使用let反复定义一个变量
+
+### 使用const关键字定义常量
+1. 常量：指的是不会改变的数据
+2. 常量的特点
+    1. 值不能改变
+    2. 常量具有块级作用域
+    3. 不要在块中申明常量
+    4. 没有变量提升，先声明后使用
+    5. 不可以重复申明同名的常量
+    6. 一定要赋初始值，否则报错
+    7. 如果声明的是对象，对象的地址不能改变，但是可以改变其内部的属性
+3. 将来只要值nodejs中引用核心模块或者包都用常量来接收
+
+### 字符串的扩展方法
+1. includes()：返回值是布尔值，表示是否找到参数字符
+2. startsWith()：返回值是布尔值，用于判断字符串是否以某些字符开头
+3. endsWith()：返回布尔值，用于判断字符串是否以某些字符结尾
+4. startsWith()、endsWith()传入两个参数，第二个表示从索引i开始以字符开头(结尾),返回布尔值
+5. repeat()：传入数字(正数，下取整)，将字符串重复输出
+
+### 模板语法"模板字符串"
+1. 定义一个模板，并且给模板加一些占位：${}
+```
+var temp=`大家好，我叫${obj.name}，今年${obj.age}`;
+```
+2. 将模板中的一些变量赋值
+3. ${}可以放变量、方法、表达式
+
+### 箭头函数
+1. 箭头函数的演变规则
+2. 最原始的匿名函数
+```
+var arr=[2,3,4,1];
+$(arr).each(function(index,item){
+    console.log(item);
+});
+```
+3. 改造一：匿名函数中的function关键字我们可以省略，参数与方法之间=>
+```
+$(arr).each((index,item)=>{
+    console.log(item);
+});
+```
+4. 改造二：如果方法中的代码只有一句我们可以去掉{}，并且代码结尾的分号要去掉
+```
+$(arr).each((index,item)=>console.log(item));
+```
+5. 改造三：如果匿名函数中的参数只有一个可以将参数的括号去掉
+```
+$(arr).each(index=>console.log(item));
+```
+6. 改造四：如果匿名函数中有返回值，并且只有一句代码，我们可以去掉return关键字
+```
+$(arr).sort(function(m,n){
+    return n-m;
+});
+$(arr).sort(m,n)=>n-m;
+```
+7. 总结：箭头函数的写法没有一个固定的格式，都是根据方法的参数和方法体的，灵活运用
+8. 参数：
+    1. 如果参数只有一个，可以去掉参数的括号
+    2. 如果有两个或者两个以上的参数，括号不能去掉
+    3. 如果没有参数，括号不能去掉
+9. 方法体：
+    1. 方法体只有一句，可以省略大括号
+    2. 方法体只有一句，并且有return，可以省略return和方法体的大括号
+    3. 如果方法体不止一句，大括号绝对不能去掉
+10. 箭头函数没有自己的this，函数体内部写的this，会顺着作用域去找最近真实存在的this
+11. 如果在nodejs环境中使用setTimeout传入一个匿名函数，这个函数中使用到了this，这个this是setTimeout本身，用箭头函数后，this是整个node全局环境
+```
+function foo(){
+    setTimeout(function(){
+        console.log(this);//setTimeout
+    },1000);
+}
+function foo(){
+    setTimeout(()=>{
+        console.log(this);//node
+    },1000);
+}
+```
+12. 箭头函数内部的this是定义时所在的对象，而不是使用时所在的对象，并且不会改变
+```
+function foo(){
+    this.name='Jhon';
+    return ()=>{
+        console.log(this.name);
+    }
+}
+var fo=foo();//返回的是一个函数对象
+foo.name="tom";
+fo();//Jhon说明一旦箭头函数声明完成后this指向不会发生改变
+```
+13. 箭头函数不能作为构造函数
+```
+var foo=function(name,age){
+    this.name=name;
+    this.age=age;
+}
+var foo=(name,age)=>{
+    this.name=name;
+    this.age=age;
+}
+var obj=new foo('Jhon',18);//报错
+```
+14. 箭头函数中不存在arguments，箭头函数中的arguments指向的是外层的arguments
+```
+function foo(){
+    setTimeout(()=>{
+        console.log(arguments);//{ '0': 'aa', '1': 'bb' }
+    },1000);
+}
+foo('aa','bb');
+```
+
+## 通过nodejs核心模块来操作文件
+### 核心模块fs
+1. 使用Buffer对象
+    1. 创建一个二进制数组对象
+    2. 在创建的时候可以将数组的长度在buffer后的括号中指定
+    3. 一旦指定那么这个数组的长度永远固定
+    ```
+    var buf=new Buffer(5);
+    ```
+    4. buffer对象本质上是一个二进制数组，但是在显示的时候为了不占太多的空间
+    5. 在buffer输出的时候，会由二进制自动转换为十六进制
+    6. 将buffer数组清空
+    ```
+    buf.fill(0);
+    ```
+    7. 向buffer中存储数：字母占一个字节，汉子占三个字节
+    ```
+    buf.write('我AB');
+    ```
+    8. 如果一个数组长度不能容纳所有的内容，那么将来这个数组会将走出的部分自动省略
+    9. 将数组以字符串的形式输出
+    ```
+    buf.toString();
+    ```
+    10. 给buffer数组按需分配长度
+    ```
+    var buf=new Buffer('你好！');
+    ```
+    11. 获取指定位置的指定长度数据
+    ```
+    buf.slice(2);
+    ```
+    12. 判断在buffer中是否识别某个字符集
+    - 默认情况下nodejs的buffer中的toString方法会将二进制数据转为UTF-8
+    - 以二进制的形式将文件中的内容读取出来
+    ```
+    "use strict";
+    const fs=require('fs');
+    //err当读取发生错误，错误信息会保存在err中
+    //data当读取成功是读取的数据会保存在data，这个data本质上就是一个二进制数组
+    fs.readFile('./1.txt',(err,data)=>{
+        if(err){
+            console.log("文件读取失败");
+            return;
+        }
+        console.log(data.toString());
+    });
+    ```
+    13. 可是不支持GB2312格式，应该下载一个iconv-lite包，导入包，以及用它的格式来输出文件·iconv.decode(data,'gb2312');
+    
+### 操作目录
+1. 创建文件夹mkdir
+```
+fs.mkdir('./aa',(err)=>{
+    if(err){
+        consoel.log('添加失败');
+        return;
+    }
+    consoel.log('创建成功');
+});
+```
+- 创建文件有两种方式，同步(mkdirSync)和异步(mkdir)
+- 用的多的是异步形式，不用造成阻塞
+2. 删除文件夹rmdir
+3. 判断文件夹是否存在
+```
+fs.exists(path,(exists)=>{});
+```
+
+### 操作文件
+1. 写文件writefile,appendFile
+```
+fs.writeFile('./aa/1.txt','Hello',(err)=>{
+    return err?console.log('失败'):console.log('成功');
+});
+```
+- writefile特点:
+    + 如果目录下不存在这个文件，他就会自动创建一个文件
+    + 如果目录不存在，无法自动创建
+    + 如果重复想一个文件中写内容，不是追加，而是覆盖
+- appendFile追加到文件后面
+2. 读文件readFile
+```
+fs.readFile('./aa/1.txt',(err,data)=>{
+    return err?console.log('失败'):console.log(data.toString());
+});
+```
+3. 文件重命名rename，文件名和文件路径
+4. 删除文件unlink
+5. 监控文件watch
+```
+fs.watchFile('./aa/1.txt',(curr,prev)=>{
+    console.log(`curr=${curr}`);
+    console.log(`prev=${prev}`);
+});
+```
+6. 如果使用readFile方法来读取大文件将来会报异常，因为我们的data/buffer这个数组会越界
+7. 如果要读取大文件，用我们的文件流方法
+8. fs.createReadStream(path[,option])将文件已流的形式读取出来(读流)
+9. fs.createWriteStream(path[,option])将文件已流的形式写进去(写流)
+10. 创建读流和写流
+11. let pathOld='F:\\11\\1.zip';
+```
+let pathTarget='F:\\1.zip';
+let rs=fs.createReadStream(pathOld);
+let ws=fs.createReadStream(pathTarget);
+```
+11. 设置文件数据改变的事件
+```
+rs.on('data',(chunk)=>{
+    ws.write(chunk);//让写流将读流读出来的内容写入对应的文件
+});
+```
+12. 设置读取的监听事件
+```
+rs.on('end',()=>{
+    console.log('文件读取完成');
+    ws.end(()=>{
+        console.log('文件写入完成');
+    });
+});      
+```
+13. 用一个函数执行上面读写操作
+```
+rs.pipe(ws);
+```
+
+### Github中将html文件显示出来
+网站前面加上http://htmlpreview.github.io/?
