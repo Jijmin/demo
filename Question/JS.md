@@ -182,5 +182,13 @@
     + 类型：Function
     + 默认值：自动判断(xml或html)。请求失败时调用此函数。
 
+### 列举浏览器对象模型 BOM 里常用的至少 4 个对象，并列举 window 对象的常用方法至少 5 个 
+- 对象：window、document、location、screen、history、navigator
+- 方法：alert()、confirm()、prompt()、open()、close()、setInterval()、setTimeout()、clearInterval()、clearTimeout()
+
+### JavaScript中callee和caller的作用？
+- caller是返回一个对函数的引用，改函数调用了当前函数
+- callee是返回正在被执行的函数，也就是所指定的function对象的正文
+
 ### 解释什么是sql注入，xss漏洞
 ### FF与IE中如何阻止事件冒泡，如何获取事件对象，以及如何触发事件元素
