@@ -1102,3 +1102,381 @@ rs.pipe(ws);
         * 3389：window远程桌面登录
         * 25：smtp邮件发送协议
         * 110：pop3邮件接收协议
+
+## net核心模块
+### 使用net创建一个服务器的步骤
+1. 引入net核心模块
+```
+"use strict";
+const net=require('net');
+```
+2. 创建一个服务器对象
+```
+let socketServer=net.createServer();
+```
+3. 开启服务：一旦有客户端连接，就会触发这个事件中的回调函数
+```
+socketServer.on('connection',(socket)=>{
+    //socket是回调函数的参数的作用是服务器的socket
+    //这个参数
+    //console.log('有客户端连接');
+    socket.write('hello client');//如果写中文在cmd中显示是乱码
+});
+```
+4. 开启监听
+```
+socketServer.listen('8888','127.0.0.1',()=>{
+    console.log('服务器已经开启监听');
+});
+```
+5. 要在自己本机上模拟，需要在电脑里面的【程序和功能】->【打开或关闭Windows】，打开telnet   
+```
+telnet 127.0.0.1 8088//cmd中
+```
+
+### 使用net创建一个客户端
+1. 引入Net模块
+```
+"use strict";
+const net=require('net');
+```
+2. 设置要连接的服务器的IP和端口号
+```
+const ip='127.0.0.1';
+const port=8090;
+```
+3. 建立连接，如果成功就可以与服务器进行交流，返回值socket
+```
+let socket=net.createConnection(port,ip,()=>{
+    console.log('已经连接上服务器');
+});
+```
+4. data事件接受接受服务器发送过来的信息，在服务器发送信息给客户端时触发
+```
+socket.on('data',(content)=>{
+    console.log(`服务器：${content}`);
+});
+```
+5. 解决客户端突然掉线的bug，在服务器上加一个解决错误的办法
+```
+socket.on('error',()=>{
+    console.log('有客户端掉线了');
+});
+```
+6. 在服务器端得到所有客户端的信息
+```
+//socket.remoteAddress
+//socket.remotePort
+console.log(`有服务器连接上来了，IP地址为：${socket.remoteAddress}，端口为：${socket.remotePort}`);
+```
+
+### 问答机器人
+1. 引入Net模块
+```
+"use strict";
+const net=require('net');
+```
+2. 创建服务器socket对象
+```
+var socketServer=net.createServer();
+```
+3. 开启服务器
+```
+socketServer.on('connection',(socket)=>{
+    console.log('有客户端连接上来了');
+    socket.write('我是Nacy，很高兴为您服务');
+});
+```
+4. 进行监听
+```
+socketServer.listen(8090,'127.0.0.1',()=>{
+    console.log('服务器已开启');
+});
+```
+5. 编写客户端
+```
+"use strict";
+const net=require('net');
+```
+6. 得到IP和端口号
+```
+const ip='127.0.0.1';
+const port=8090;
+```
+7. 建立连接
+```
+var socket=net.createConnection(port,ip,()=>{
+    //...
+});
+```
+8. 监听服务器的数据
+```
+socket.on('data',(content)=>{
+    console.log(`服务器：${content}`);
+});
+```
+9. 在客户端添加一个输入事件
+```
+process.stdin.on('readable',()=>{
+    //先得到用户输入的内容
+    var msg=process.strin.read();
+    if(msg!=null){
+        //将输入的信息发送到服务器
+        socket.write(msg);
+    }
+});
+```
+10. 处理掉线异常
+```
+socket.on('error',()=>{
+    console.log('客户掉线');
+});
+```
+11. 当客户端发送信息过来时会触发data事件
+```
+socket.on('data',(content)=>{
+    //console.log(`客户端说：${content}`);
+    //处理用户发送过来的信息
+    var msg=content.toString().trim();
+    //第12步
+});
+```
+12. 判读用户输入的内容
+```
+if(msg!=''){
+    switch(msg){
+        case 'hi':
+            socket.write('hello');
+            break;
+        //...
+        default:
+            socket.write('不清楚你再说什么');
+            break;
+    }
+}
+```
+
+### 编写一个小型聊天工具
+1. 服务器
+- 将来客户端发给服务器的信息只能是：
+- 登录：{'do':'login','userName':'name'}
+- 发送信息：{'do':'sendMsg','content':'要发送的内容','sendUse':'sueName'}
+- 引入net模块
+- 定义ip地址和端口号
+- 搭建服务器
+- 监听用户连接之后的操作
+- 得到客户端输入的信息
+- 判断输入的内容非空，将二进制转换成字符串，去空格
+- 将字符串转换为一个对象
+- 判断当前的操作，是登录还是聊天
+2. 负责处理客户端发送过来的信息
+- 新建一个文件专门负责处理客户端发送过来的信息
+- 添加一个方法主要负责处理登录逻辑
+- 如果没有登录，就选择登录
+- 如果用户登录，就直接跳出
+- 创建一个对象用来保存我们登录的所有的用户对象
+- 得到当前contentObj中的登录对象
+- 判断当前这个登录的对象是否在user对象中存在
+- 进行遍历判断，如果当前用户在user中，说明已经登录了，我们不能让他再次登录
+- 用传进来的socket返回给用户一个信息，还要将函数返回
+- 如果用户没有登录，就将用户的登录信息保存到对象中
+3. 编写一个用于处理客户端与客户端之间的信息传递的方法
+4. 将两个处理方法返回出去
+5. 在服务器中引用这两个方法
+- 在判断函数中调用我们的处理方法
+- 处理掉线问题
+6. 客户端A
+- 引入net模块
+- 得到ip和端口号
+- 建立联系，给一个特定格式的提示信息
+- 监听服务器的数据
+- 给用户端添加一个输入事件
+- 得到用户输入的内容
+- 非空的情况下，将输入的信息发送给服务器
+7. 测试时，连续登陆时都是"登陆成功"解决
+- 在对处理客户端发送过来的信息的时候
+- 不应该用for-in遍历，应该先判断当前这个登录的用户名是否存在
+- 如果非空，就在客户端显示提示信息，并返回函数
+8. 再次开一个客户端时，登录时在另一个地方显示已经登录，这边不处理的解决办法
+- 取值时，单词错误
+9. 处理客户端与客户端的信息传递
+- 得到用户之间发送的信息
+- 得到要发送的对象的username
+- 通过username得到对应的socket
+- 通过服务器与要接受到的对象保留的socket进行通讯
+
+### 整理小型聊天工具
+1. 我们要编写一个小型聊天工具
+2. 用户A要给用户B发送消息，应该通过服务器来处理
+3. 创建一个服务器
+4. 在nodeJS中我们需要使用TCP，引入一个net模块，
+```
+"use strict";
+const net=require('net');
+```
+5. 在创建服务器时，需要给外界服务器的ip地址和端口号，其他用户才能找的到
+```
+const ip='192.168.114.51';
+const port=8888;
+```
+6. 搭建一个服务器
+```
+let socketServer=net.createServer();
+```
+7. 开始监听需要的ip和端口号，监听到，表明服务器真正的创建成功
+```
+socketServer.listen(port,ip,()=>{
+    console.log('服务器开启成功');
+});
+```
+8. node是事件驱动，我们创建的服务器需要等待在那，监测用户连接服务器以及通过socket发送过来的信息
+```
+socketServer.on('connection',(socket)=>{
+    socket.on('data',(content)=>{
+        //...
+    });
+});
+```
+9. 我们事先就规定用户的输入格式，当用户发送过来后我们就要对数据进行处理
+10. 但是在处理数据之前，我们需要做有个异常处理，这样优化我们用户体验
+```
+try{
+    //正常代码
+}catch(error){
+    //获取客户端真实的ip地址
+    console.log(socket.remoteAddress);
+}
+```
+11. 这里假设用户输入了数据，我们需要对用户的输入进行判断
+12. 我们电脑中是通过二进制进行传输数据的
+13. 在非空的情况下，将用户传送过来的二进制数据转换成字符串，并且需要去掉空格
+```
+if(content!=null){
+    let msg=content.toString().trim();
+}
+```
+14. 将字符串转换成一个JSON对象
+```
+let obj=JSON.parse(msg);
+```
+15. 通过用户传入的字符串进行判断，是登录还是聊天
+```
+switch(obj.do){
+    case 'login':
+        //登录
+        break;
+    case 'sendMsg':
+        //聊天
+        break;
+    default:
+        socket.write('您输入的指令为空，请重新输入');
+        break;
+}
+```
+16. 专门用一个js来封装一个用户消息的处理
+17. 定义一个对象用来存储登录的用户的socket
+```
+let user={};
+```
+18. 添加对用户登录处理函数
+```
+function processLogin(contentObj,socket){
+    //...
+}
+```
+19. 得到当前登录中的对象
+```
+let userName=contentObj.userName;
+```
+20. 判断当前这个用户是否在user对象中
+```
+let objSocket=user[userName];
+    if(objSocket!=null){
+        socket.write('您已经登录');
+        return;
+    }
+```
+21. 如果用户没有登录，需要将用户的socket保存在user对象中
+```
+user[userName]=socket;
+socket.write('登录成功');
+```
+22. 在服务器中引入我们对用户信息处理的模块
+```
+const processMsg=require('./processMsg.js');
+```
+23. 在选择语句中对函数进行调用
+```
+processMsg.processLogin(obj,socket);
+```
+24. 在客户端要获取到服务器的消息，一样也需要与服务器进行连接
+```
+"use strict";
+const net=require('net');
+const ip='192.168.114.51';
+const port=8888;
+```
+25. 建立连接，输出提示用户数据输入格式的信息
+```
+let socket=net.createConnection(port,ip,()=>{
+    console.log("如果需要登录，请输入{'do':'login','userName':'用户名'}'格式");
+    console.log("如果需要发送信息，请输入{'do':'sendMsg','content':'要发送的内容','sendTo':'发给谁'}'格式");
+});
+```
+26. 服务器如果处理，客户端会收到服务器发送的消息，事件驱动表示我们客户端也需要监听服务器发送给我们的数据
+```
+socket.on('data',(content)=>{
+    console.log(`${content}`);
+});
+```
+27. 现在我们需要实现用户可以输入的问题，用户输入，就可以将数据传送给服务器
+```
+process.stdin.on('readable',()=>{
+    //得到用户输入
+    let msg=process.stdin.read();
+    if(msg!=null){
+        //将输入的信息发送给服务器
+        socket.write(msg);
+    }
+});
+```
+28. 然后服务器就有了数据，可以进行判断
+29. 添加一个对用户掉线处理
+```
+socket.on("error",()=>{
+    console.log("掉线了");
+});
+```
+30. 现在用户可以给指定的人发送消息了，在服务器选择模块就可以完善选择模块
+```
+processMsg.processSendMsg(obj);
+```
+31. 在处理用户输入模块实现发消息的功能
+```
+function processSendMsg(contentObj){
+    //...
+}
+```
+32.  得到用户之间发送的消息
+```
+let msg=contentObj.content;
+```
+33. 得到要发送的对象
+```
+let userName=contentObj.sendTo;
+```
+34. 获取要发送对象的socket
+```
+let socket=user[userName];
+```
+35. 我们就可以向对应那个socket的用户发消息了
+```
+socket.write(msg);
+```
+36. 将方法暴露出去
+```
+module.exports={
+    processLogin: processLogin,
+    processSendMsg: processSendMsg
+};
+```
