@@ -1480,3 +1480,214 @@ module.exports={
     processSendMsg: processSendMsg
 };
 ```
+### JSON数据要用双引号，不能使用单引号
+
+### 在循环比较中不能使用let声明
+
+## HTTP
+### 浏览器两次连接服务器
+1. IP地址请求了一次服务器
+2. 页面的头部的小图标favicon
+
+### HTTP特点
+1. http协议是无状态的
+2. http请求方法：*get*、*post*、put、delete..... 
+3. 请求报文
+- 请求报文行
+- 请求报文头
+- 固定换行
+- 请求报文体
+4. 响应报文
+- 响应报文行
+- 响应报文头
+- 固定换行
+- 响应报文体
+
+### 模仿响应报文
+1. 响应报文行
+```
+//HTTP/1.1 200 OK
+//HTTP/1.1：当前服务器遵守的协议版本
+//200 OK:响应状态码(成功)
+//404 Not Found:未找到资源
+//500 :服务器错误
+```
+2. 创建一个字符串用来存放响应报文字符串
+```
+let responseString="HTTP/1.1 200 OK\r\n"
+```
+3. 响应报文头
+```
+//Conent-Type:text/html;charset=utf-8
+//Content-Length:198196
+```
+4. 存入响应报文头
+```
+let msg="hello world";
+responString+="Conent-Type:text/html;charset=utf-8\r\n";
+responString+="Content-Length:"+msg.length+"\r\n";
+```
+5. 固定换行
+```
+responString+="\r\n";
+```
+6. 设置请求报文体
+```
+responString+=msg;
+```
+
+### HTTP核心模块
+1. 引用我们的HTTP核心模块
+```
+"use strict";
+const http=require('http');
+```
+2. 创建服务器对象
+```
+let server=http.createServer();
+```
+3. 监听浏览器的请求
+```
+//request：将来浏览器发送到服务器时，会触发这个事件中的回调函数
+server.on('request',(req,res)=>{
+    console.log('有新的请求');
+    res.end("这是服务器返回的内容");
+});
+```
+4. 开启监听
+```
+server.listen(8888,'127.0.0.1',()=>{
+    console.log("服务器已经开启");
+});
+```
+5. 简化版
+```
+http.createServer((req,res)=>{
+    console.log('有新的请求');
+    res.end("这是服务器返回的内容");
+}).listen(8888,'127.0.0.1',()=>{
+    console.log("服务器已经开启");
+});
+```
+6. req:request(请求)就是浏览器发送给服务器的信息的对象
+7. res:response(响应)就是服务器发送给浏览器新的的对象
+
+### request
+- req：在http模块中对应的一个http.IncomingMessage
+- headers：得到当前请求的请求报文头，整个头部的所有的内容(对象)
+- rawHeaders：得到当前请求的请求报文头(数组)
+- httpVersion：得到当前请求的http版本号
+- method：得到当前的请求方式
+- statusCode：得到当前请求的状态码
+- statusMessage：得到状态码对应的信息
+- url：得到当前请求的路径
+
+### response
+- res：在http模块中对应的一个http.ServerResponse
+- setHeader：设置响应报文头的属性(Content-Type、Content-Length)
+    + Content-Type设置当前文件的解析格式
+    + text/html这段文件以html的方式来解析
+    + text/plain以文本的形式输出
+    + application/x-png以图片的png格式输出
+- write：向页面输出内容，但是不能单独使用，必须在后面加上一个end方法
+- end：标志着响应结束，将来在end后放的代码不会执行
+
+### 搭建一个网站
+1. 引入核心文件
+```
+"use strict";
+const http = require("http");
+const fs = require("fs");
+const path = require("path");
+```
+2. 创建服务器
+```
+http.createServer((req,res)=>{
+    //...
+}).listen(8888,'127.0.0.1',()=>{
+    console.log('服务器已经开启');
+});
+```
+3. 得到浏览器请求的URL
+```
+let url=req.url;
+```
+4. 判断当前的请求页面
+```
+if(url == "/" || url.includes("index")){}//index.html/default.html/main.html
+```
+5. 根据url去找到对应的的页面
+```
+fs.readFile('./page/index.html',(err,data)=>{
+    if(err){
+        console.log("读取失败");
+        return;
+    }
+    res.setHeader('Content-Type','text/html; charset=utf-8');
+    res.end(data);
+});
+```
+6. 同样我们一样也需要对css文件进行加载
+```
+else if(url.includes(".css")){//这个逻辑专门用来返回css文件
+    //得到当前请求要的css文件名和后缀后
+    let fileName = path.basename(url);//index.css
+    //找到服务器中的index.css文件
+    fs.readFile("./page/css/"+ fileName,(err,data)=>{
+        if(err){
+            console.log("读取失败");
+            return;
+        }
+        res.setHeader("Content-Type","text/css; charset=utf-8");
+        res.end(data);
+    });
+}
+```
+7. 但是我们在页面中的数据是固定的，一般的情况下，数据是从后台获取的，我们这里将数据放入JSON文件中
+```
+[1,2,3,4,5,6,7]
+```
+8. 在HTML中插入模板
+```
+<ul>
+    ${lis}
+</ul>
+```
+9. 在服务器模块我们就要对那个插值模板进行处理
+```
+let arr=require('./page/data.json');
+```
+10. 遍历生成li标签
+```
+let liStr='';
+for(let i=0;i<arr.length;i++){
+    liStr+='<li>'+arr[i]+'</li>';
+}
+```
+11. 替换掉data中的字符串${lis}
+```
+let content=data.toString();
+content=content.replace('${lis}',liStr);
+res.setHeader('Content-Type','text/html; charset=utf-8');
+res.end(content);
+```
+12. 使用第三方插件搭建模板
+```
+const xtpl=require('xtpl');
+//第一个参数：设置模板的路径
+//第二个参数：一个数据对象，这个对象将来会通过第三方模板传到模板，在模板中我们可通过第三方模块的语法来操作这个数据 
+//第三个参数：当模板中的内容自动替换完成以后会执行的回调函数  error:异常  content:就是替换完动态数据以后页面的内容
+xtpl.renderFile('./page/index.html',{arr:require('./page/data.json')},function(error,content){
+    if(error){
+        console.log("读取文件错误");
+        return;
+    }
+    res.end(content);
+});
+```
+13. 在HTML中添加模板
+```
+{{#each(arr)}}
+    <li>{{this}}</li>
+{{/each}}
+```
