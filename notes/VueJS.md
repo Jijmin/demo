@@ -98,4 +98,156 @@ v-show也是条件渲染指令，和v-if指令不同的是，使用v-show指令�
 v-for指令基于一个数组渲染一个列表`v-for="item in array"`
 
 ### v-bind指令
+v-bind指令可以在其名称后面带一个参数，中间放一个冒号隔开，这个参数通常是HTML元素的特性（attribute），例如：v-bind:class
+```
+<div id="app">
+    <ul class="pagination">
+        <li v-for="n in pageCount">
+            <a href="javascripit:void(0)" v-bind:class="activeNumber === n-1?'active':''">{{n}}</a>
+        </li>
+    </ul>
+</div>
+<script src="vue.js"></script>
+<script>
+    var vm=new Vue({
+        el:'#app',
+        data:{
+            activeNumber:1,
+            pageCount:10
+        }
+    });
+</script>
+```
+
 ### v-on指令
+v-on指令用于给监听DOM事件，它的用语法和v-bind是类似的`<a v-on:click="doSomething">`有两种形式调用方法：绑定一个方法（让事件指向方法的引用），或者使用内联语句。
+```
+<div id="app">
+        <p><input type="text" v-model='message'></p>
+        <p>
+            <!-- click事件直接绑定一个方法 -->
+            <button v-on:click="greek"></button>
+        </p>
+        <p>
+            <!--click事件使用内联语句-->
+            <button v-on:click="say('Hi')">Hi</button>
+        </p>
+    </div>
+    <script src="vue.js"></script>
+    <script>
+        var vm=new Vue({
+            el:'#app',
+            data:{
+                message:'Hello world!'
+            },
+            methods:{
+                greek:function(){
+                    // 方法内 `this` 指向 vm
+          alert(this.message)
+                },
+                say:function(msg){
+                    alert(msg);
+                }
+            }
+        });
+    </script>
+```
+
+### v-bind和v-on的缩写
+Vue.js为最常用的两个指令v-bind和v-on提供了缩写方式。v-bind指令可以缩写为一个冒号，v-on指令可以缩写为@符号。
+
+### 综合实例
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>综合实例</title>
+</head>
+<body>
+    <div id="app">
+        <fieldset>
+            <legend>Create New Person</legend>
+            <div class="form-group">
+                <label>Name:</label>
+                <input type="text" v-model="newPerson.name" />
+            </div>
+            <div class="form-group">
+                <label>Age:</label>
+                <input type="text" v-model="newPerson.age" />
+            </div>
+            <div class="form-group">
+                <label>Sex:</label>
+                <select v-model="newPerson.sex">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label></label>
+                <button @click="createPerson">Create</button>
+            </div>
+        </fieldset>
+        <table>
+            <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Sex</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for='person in people'>
+            <td>{{ person.name }}</td>
+          <td>{{ person.age }}</td>
+          <td>{{ person.sex }}</td>
+          <td :class="text-center"><button @click="deletePerson($index)">Delete</button></td>
+        </tr>
+      </tbody>
+        </table>
+    </div>
+    <script src="vue.js"></script>
+    <script>
+        var vm=new Vue({
+            el:'#app',
+            data:{
+                newPerson: {
+          name: '',
+          age: 0,
+          sex: 'Male'
+        },
+        people: [{
+          name: 'Jack',
+          age: 30,
+          sex: 'Male'
+        }, {
+          name: 'Bill',
+          age: 26,
+          sex: 'Male'
+        }, {
+          name: 'Tracy',
+          age: 22,
+          sex: 'Female'
+        }, {
+          name: 'Chris',
+          age: 36,
+          sex: 'Male'
+        }]
+            },
+            methods:{
+                createPerson:function(){
+                    this.people.push(this.newPerson);
+                    //重置newPerson对象
+                    this.newPerson={name: '', age: 0, sex: 'Male'};
+                },
+                deletePerson:function(index){
+                    //删除数组元素
+                    this.people.splice(index,1);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+```
