@@ -126,3 +126,129 @@ var person2 = new Person("Greg", 27, "Doctor");
 - 执行构造函数中的代码(为这个新对象添加属性和方法)
 - 返回新对象
 13. 创建自定义的构造函数意味着将来可以将它的实例标识为一种特定的类型；而这正是构造函数模式胜过工厂模式的地方。
+14. 其实构造函数也是函数，没有通过new的调用就是普通函数
+15. 构造函数模式虽然好用，但也是有缺点的
+16. 使用构造函数，就是每个方法都要在每个实例上重新创建一遍，非常占用空间
+17. 我们也能看的出来，创建两个完成同样任务的Function实例的确没有必要
+18. 何况我们有this对象在，根本不用在执行代码前就把函数绑定到特定的对象上去
+19. 因此我们可以通过把函数定义转移到构造函数外部来解决这个问题
+```
+function Person(name,age,job){
+    this.name=name;
+    this.age=age;
+    this.job=job;
+    this.sayName=sayName;
+}
+function sayName(){
+    alert(this.name);
+}
+var person1 = new Person("Nicholas", 29, "Software Engineer"); 
+var person2 = new Person("Greg", 27, "Doctor"); 
+```
+20. 在这段代码中，我们将sayName函数主体定义在构造函数外面，在构造函数中我们存储的是sayName的指针，我们每次创建实例的时候，调用的是同一个sayName对象。
+21. 但是问题又出在，我们定义在全局的作用域中的函数实际上只能被某个对象调用，这让全局作用域有点名副其实。
+22. 如果对象需要定义很多方法，那么就要定义很多的全局函数，于是我们这个自定义的引用类型就丝毫没有封装可言。
+
+### 原型模式
+1. 我们知道我们创建的每一个对象都有一个prototype(原型)属性，这个属性是一个指针，指向一个对象，而这个对象的用途是包含可以由特定类型的所有实例共享的属性和方法。
+2. 使用原型对象的好处是可以让所有对象实例共享它所包含的属性和方法。
+3. 不必在构造函数中定义对象实例的信息，而是可以将这些信息直接添加到原型对象中。
+```
+function Person(){}
+Person.prototype.name="Nicholas";
+Person.prototype.age=29;
+Person.prototype.job="Software Engineer";
+Person.prototype.sayName=function(){
+    alert(this.name);
+};
+```
+4. 我们新创建出来的实例共享属性和方法
+5. __proto__存在于实例与构造函数原型对象之间，不是实例与构造函数之间
+6. 减少不必要的输入，为了从视觉上更好的封装原型的功能，更常见的做法是用一个包含所有属性和方法的对象字面量来重写整个原型对象
+```
+function Person(){}
+Person.prototype={
+    constructor : Person, 
+    name : "Nicholas", 
+    age : 29, 
+    job: "Software Engineer", 
+    sayName : function () { 
+        alert(this.name); 
+    }
+}
+```
+7. 如果先创建了实例然后再重写原型对象。然后调用sayName()会报错，新创建的实例指向的是原本的原型对象，但是我们重写原型对象，就切断了它与原来的原型对象的联系，就会查找不到。
+8. 所有原生的引用类型，都是采用这种原型模式创建的
+9. 原型模式也不是没有缺点。首先，它省略了为构造函数传递初始化参数这一环节，结果所有实例在默认情况下都将取得相同的属性值。然后，原型中所有属性是被很多实例共享的，这种共享对于包含引用类型值的属性来说，问题就比较突出了，实例改变直接影响到原型。这并不是我们所希望的。
+10. 实例一般都是要有属于自己的全部属性的。
+
+### 组合使用构造函数模式和原型模式
+1. 构造函数里面存放属性
+2. 在原型上添加共享方法
+```
+function Person(name, age, job){ 
+    this.name = name; 
+    this.age = age; 
+    this.job = job; 
+    this.friends = ["Shelby", "Court"]; 
+} 
+Person.prototype = { 
+    constructor : Person, 
+    sayName : function(){ 
+        alert(this.name); 
+    } 
+} 
+```
+
+### 动态原型模式
+1. 考虑到其他OO语言经验开发人员在看到独立的构造函数和原型时的困惑
+2. 就有了动态原型模式
+3. 把所有信息都封装在了构造函数中，而通过在构造函数中初始化原型，又保持了同时使用构造函数和原型的优点
+```
+function Person(name,age,job){
+    this.name=name;
+    this.age=age;
+    this.job=job;
+    if(typeof this.sayName!='function'){
+        Person.prototype.sayName = function(){ 
+            alert(this.name); 
+        }; 
+    }
+}
+```
+4. 这里只在sayName()方法不存在的情况下，才会将它添加到原型中
+5. 这段代码只会在初次调用构造函数时才会执行
+6. 此后，原型已经完成初始化，不需要再做什么修改了
+
+### 寄生构造函数模式
+```
+function Person(name, age, job){ 
+    var o = new Object(); 
+    o.name = name; 
+    o.age = age; 
+    o.job = job; 
+    o.sayName = function(){ 
+        alert(this.name); 
+    }; 
+    return o; 
+} 
+var friend = new Person("Nicholas", 29, "Software Engineer"); 
+friend.sayName(); //"Nicholas
+```
+1. 使用new操作符并把使用的包装函数叫做构造函数之外，这个模式跟工厂模式其实是一模一样的
+2. 构造函数在不返回值的情况下，默认会返回新对象实例。
+3. 而通过在构造函数的末尾添加一个return语句，可以重写调用构造函数时返回的值。
+4. 返回的对象与构造函数或者与构造函数的原型属性之间没有关系，也就是说，构造函数返回的对象与在构造函数外部创建的对象没有什么不同
+
+### 稳妥构造函数模式
+1. 所谓稳妥对象，指的是没有公共属性，而且其方法也不引用this的对象。
+2. 稳妥对象最适合在一些安全的环境中（这些环境中会禁止使用this和new），或者在防止数据被其他应用程序（如Mashup程序）改动时使用。
+```
+function Person(name,age,job){
+    var o = new Object(); 
+    o.sayName = function(){ 
+        alert(name); 
+    };
+    return o;
+}
+```
