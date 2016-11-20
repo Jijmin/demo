@@ -1691,3 +1691,298 @@ xtpl.renderFile('./page/index.html',{arr:require('./page/data.json')},function(e
     <li>{{this}}</li>
 {{/each}}
 ```
+
+### HTTP协议
+1. HTTP是无状态的
+- http中的状态维持
+    + cookie
+    + session
+2. 请求方式
+- get 
+    + `<a href="path"></a>`
+    + `window.location`
+    + `<form method="get"></form>`
+- post
+    + `<form method="post"></form>`
+
+## Express框架学习
+### 创建服务器
+1. 创建配置信息`npm init -y`
+2. 下载express`npm i express --save`
+3. 导入express包
+```
+"use strict";
+const express=require('express');
+```
+4. 利用express对象创建一个application对象app(现对于服务器对象)
+```
+let app=express();
+```
+5. 开启监听
+```
+app.listen('8888',127.0.0.1,()=>{
+    console.log("服务器开启成功");
+});
+```
+6. 创建一个get的路由请求：list
+```
+app.get('/list',(req,res)=>{
+    res.end('list请求成功');
+});
+```
+7. 不管是get还是post，都可以获取的到，用的最少
+```
+app.all('/all',(req,res)=>{
+    let method=req.method
+    res.end('all请求成功'+method);
+});
+```
+
+### 使用router方法进行路由的分类
+1. 利用router方法进行路由分类
+- 引包
+- 创建app对象
+- 创建一个路由对象
+```
+let mainRout=express.Router();
+```
+- 开始设置路由
+```
+mainRout.get('/list',(req,res)=>{
+    res.end('list请求成功');
+});
+```
+- 将mainRout加载到app对象中
+```
+app.add('/',mainRout);
+//app.add()方法中第一个参数可以设置统一路由，即第一个参数可以为/man，那么上两个方法中不用加man了。
+```
+- 开启监听
+- 路由在使用的时候我们可以设置统一的路径
+```
+app.use('/woman',mainRout);
+```
+
+### 使用router将页面分离
+1. 我们要将两种不同类别的文件分离出来
+2. 导入express包
+3. 创建一个router对象
+4. 设置请求路由
+5. 将设置好的页面暴露出去
+```
+module.exports=router;
+```
+6. 使用router
+```
+app.use('/woman',womanRout);
+```
+
+### 多个回调函数的执行时机
+1. 当程序运行到第一个回调函数时，执行函数代码
+2. 当第一个回调函数执行完毕以后，返回这个函数中的next
+3. 如果有就执行第二个回调函数，如果没有，就结束
+```
+app.get('/list',(req,res,next)=>{
+    var isLogin=true;
+    if(isLogin){
+        console.log("处理登录完成");
+        next();//调用下一个回调
+    }else{
+        res.end("您还没有登录，请登录");
+    }
+},(req,res)=>{
+    //...
+});
+```
+
+### 使用通配符设置统一路由
+在所有的同一路由下面的方法中有设置一个有通配符来匹配，可以在执行其它方法之前先执行通配符中的方法，执行完成以后执行next()可以继续执行下面的请求。
+```
+app.get('/admin/*',(reg,res,next)=>{
+    res.wrote('这是统一的处理逻辑');
+    next();
+});
+app.get('/admin/list',(req,res)=>{
+    res.end('2.0 /admin/list');
+});
+```
+
+### Express处理静态资源
+1. 搭建服务器框架
+2. 将所有的静态资源放置在同一个目录下：static的文件夹下
+3. 加载静态资源所在的文件夹，路径是绝对路径
+```
+app.use(express.static('./static'));//单独的斜杠是指当前目录的盘符
+```
+4. 一旦设置好了统一的路径，不要再加上static，会报错
+5. 如果静态资源不在文件夹下，可以设置多静态资源目录
+```
+app.use(express.static('./musics'));
+```
+
+### 小案例：改造音乐播放器
+
+## MySQL
+### 安装
+1. 作用：用来存储数据，它提供了一些对数增删改查的方法。
+2. 数据库为了操作方便：安装分为两步
+- 安装mysql
+    + 选择安装包
+    + 当选项进入下面选项时只需要安装防止占用过多内存，可以只安装：server only
+    + 设置将来登录的密码
+- 安装管理工具
+
+### 操作数据库
+1. 概念的理解
+- mysql：数据库管理工具
+- dbForge Studio for MySQL:mysql的可视化管理工具
+- 数据库：用于保存动态数据
+- 表：一个数据库中有多个表，每个表用于保存一种类型的数据
+- 字段：一个表中有多个字段，每个字段表示的是这条数据的一个属性
+- 字段类型
+    + Int---->整数
+    + Varchar(255)--->字符串
+    + Text---->1G以上的数据
+    + Date--->日期类型
+    + Time --->时间类型
+    + Datetime--->日期时间
+    + 自动增量(AUTO_INCREMENT)
+    + 是否允许为空 Allow nulls
+2. 使用ORM框架对数据库进行查询
+- 安装orm包 ：npm install orm mysql –save
+- 参考网站：https://www.npmjs.com/package/orm
+- Orm 依赖于mysql的第三方包，一定要注意
+- Orm结合express框架的使用代码样例
+```
+const express = require('express');
+//导入ORM包
+const orm = require("orm");
+let app = express();
+//连接mysql数据库
+app.use(orm.express("mysql://root:123@localhost:3307/main", {
+//models将来会自动赋值到req对象中，并且req对象中还有一个db对象
+//下面的方法定义好这后，相当在req对象中添加一个modules对象，这个对象中的users属性，有数据库中的users表里的所有数据，如果将来要操作users表，只需要操作modules的users属性就行了。
+    define: function (db, models, next) {
+        models.users = db.define("users", {
+             uid : { type: 'serial', key: true },
+             uname:String,
+             upwd:String,
+             uqq:String,
+             uemail:String
+         });
+        next();
+    }
+}));
+```
+- find()
+    + 查找所有的user表数据
+    ```
+    req.models.users.find(条件,回调函数(err,data)=>{});
+    let where = {};
+    req.models.users.find(where,(err,data)=>{
+    //data:js中的一个对象（此处是一个[{uid:1,uname:,upwd,uqq,uemail},{},{}]）
+        res.end(JSON.stringify(data));
+    });
+    ```
+    + 带条件查找
+        * 查找满足一个条件的数据
+        ```
+        req.models.users.find({uid:1},(err,data)=>{
+            res.end(JSON.stringify(data));
+        });
+        ```
+        * 查找满足多个条件的数据
+        ```
+        req.models.users.find({uid:1,uname:'admin'},(err,data)=>{
+            res.end(JSON.stringify(data));
+        });
+        ```
+        * 查找包含某些关键字的数据
+        ```
+        req.models.users.find({uname:orm.like('%va%')},(err,data)=>{
+            res.end(JSON.stringify(data));
+        });
+        ```
+        * 查找一个范围的数据
+        ```
+        req.models.users.find({uid:[1,2]},(err,data)=>{
+            res.end(JSON.stringify(data));
+        });
+        req.models.users.find({uid:orm.gt(3)},(err,data)=>{
+            res.end(JSON.stringify(data));
+        });
+        ```
+        * 查找前几条数据
+        ```
+        req.models.users.find({},{limit:3},(err,data)=>{
+            res.end(JSON.stringify(data));
+        });
+        ```
+        * 查找后几条数据
+        ```
+        req.models.users.find({},{offset:1,limit:2},(err,data)=>{
+            res.end(JSON.stringify(data));
+        });
+        ```
+        * 将数据排序
+        ```
+        //asc:升序  -> A
+        //desc：降序  -> Z
+        req.models.users.find({}, [ "uid", "Z" ],(err,data)=>{
+            res.end(JSON.stringify(data));
+        });
+        ```
+3. 新增数据：create()
+```
+req.models.users.create({
+   uname:'zhangsan',
+   upwd :'123',
+   uqq:'234',
+   uemail:'sdf@qq.com'
+},(err,user)=>{
+    res.end('新增成功');
+});
+```
+4. 修改数据
+- 根据主键修改 :uid =6
+```
+req.models.users.get(6,(err,user)=>{
+  //修改user.upwd='1'
+  user.upwd = '1';
+  //将修改以后的值保存会数据库
+  user.save((err,item)=>{
+      res.end('update success');
+  });
+});
+```
+- 修改数据修改
+```
+req.models.users.find({uname:'ivan'},(err,user)=>{
+  //user ->数组中只有一个对象
+  user[0].upwd= '2';
+  //将修改以后的值保存会数据库
+  user[0].save((err,item)=>{
+      res.end('update success');
+  });
+});
+```
+5. 删除数据 ：先查找出来，再remover
+- 根据主键来删除数据
+```
+req.models.users.get(5,(err,user)=>{
+      //user ->js对象而不是数组
+      user.remove((err)=>{
+          res.end('delete success');
+      });
+});
+```
+- 根据条件来删除数据
+```
+req.models.users.find({uname:'lisi'},(err,user)=>{
+  user[0].remove(err=>{
+      res.end('delete success');
+  });
+});
+```
+
+### 案例
