@@ -92,3 +92,43 @@ app.listen(port,()=>{
 ```
 let port=process.env.PORT || 8877;
 ```
+11. 服务器开启完毕，我们需要对具体的路由进行设置
+```
+"use strict";
+const express=require('express');
+let route=express.Router();
+let accCtrl=require('../controller/accountCtrl.js');
+route.get('/test',accCtrl.test);
+module.exports=route;
+```
+12. 路由可以对页面进行跳转，在上面我们提供给了accCtrl一个test方法
+```
+"use strict";
+exports.test=(req,res)=>{
+    //...
+}
+```
+13. 将查询到的信息用模板显示在页面上
+```
+"use strict";
+const xtpl=require('xtpl');
+const path=require('path');
+exports.test=(req,res)=>{
+    //设置请求头
+    res.setHeader('Content-Type','text/html;charset=utf-8');
+    req.models.userinfo.find({},{},(err,datas)=>{
+        //读模板，需要读取的路径是当前文件
+        xtpl.renderFile(path.join(__dirname,'../view/test.html'),{arr:datas},(err,html)=>{
+            if(err){
+                res.end(err.message);//将错误消息的摘要响应到浏览器 (aa is not function)
+                console.log(err);//详细的错误堆栈信息打应到cmd面板上
+                return;
+            }
+            res.end(html);
+        });
+    });
+}
+```
+
+### 问题
+总的来说程序没有报错，但是数据取不出来，推测应该是orm包没有下载好。
