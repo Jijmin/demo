@@ -393,6 +393,7 @@ app.use("/ueditor/ue", ueditor(path.join(__dirname, 'statics'), function(req, re
 ```
 statics/images/ueditor/用户上传的图片
 ```
+9. 添加了ueditor之后会报错//TODO
 
 ### 获取post请求数据
 1. 在路由规则里面的请求报文对象接受一个data事件，可以获得提交数据
@@ -406,3 +407,119 @@ route.post('/admin/add',(req,res)=>{
 2. 通过bodyParser这个第三方包去获取
 - 在app.js中使用app.use(require('body-parser'))
 - 通过req.body.vtitle获取到请求报文体中的vtitle的值
+
+### 新增的功能实现
+1. 获取到请求报文体中的值req.body.vname
+```
+exports.postadd=(req,res)=>{
+    let vtitle=req.body.vtitle;
+    let vsortno=req.body.vsortno;
+    let vvideid=req.body.vvideid;
+    let vsummary=req.body.vsummary;
+    let vimg=req.body.vimg;
+    let vremark=req.body.editorValue;
+}
+```
+2. 交给orm将数据插入到mysql表中的videoinfo中
+```
+let videoData={
+    vtitle:vtitle,
+    vsortno:vsortno,
+    vvideid:vvideid,
+    vsummary:vsummary,
+    vremark:vremark,
+    vimg:vimg
+};
+req.models.videoinfo.create(videoData,(err,item)=>{
+    if(err){
+        res.end(err.message);
+        return;
+    }
+    //...
+});
+```
+3. 提示新增成功并跳转到列表页面
+```
+res.end('<script>alert("新增成功");window.location="/admin/list";</script>');
+```
+4. *Cannot read property 'vsortno' of undefined*错误
+- 解决办法：app.use(bodyParser());中间件的使用在路由规则设定之前
+
+### 视频上传的功能
+一般一些小网站是不支持视频上传的功能的，因为存储视频需要很大的空间，一般是将视频图片存储在云上，直接使用提供给我们的接口看来实现视频的上传，如果大量的视频在自己的服务器上面，会增加流量和内存的消耗。而且存在自己的服务器上会被下载下来，不方便管理。
+
+### 编辑功能的实现
+1. 点击编辑按钮，浏览器会进行相应的跳转，跳转到特定的路由规则
+2. 我们需要对特定条数的数据进行编辑，因此我们的路由规则中是有参数的
+3. 我们点击编辑按钮会将特定的vid传给浏览器的参数
+4. 向服务器发送请求，服务器或根据路由规则实现功能
+5. 首先我们需要从数据库中取出特定的那条数据
+6. 将取出的数据渲染到页面上，将特定数据填充到form表单中的所有元素的value中
+7. 用户进行修改后，我们需要将所有的数据重新提交到服务器存入数据库中
+8. 但是我们在form表单中提交的路由规则中的参数不是固定的，应该用vid替换
+9. 在模板页中我们需要将value用占位符替换
+10. 但是最大的问题是我们富文本中的内容没有办法用value显示出来
+11. 撇开富文本的问题，我们设置路由规则
+12. 首先从url中获取到vid的值
+```
+let vid=req.params.vid;
+```
+13. 根据vid的值从mysql数据库中查找视频数据
+```
+//通过orm去数据库查找返回的结果是一个数组
+```
+14. 拿到数据后渲染edit.html页面
+```
+exports.getedit=(req,res)=>{
+    let vid=req.params.vid;
+    req.models.videoinfo.find({vid:vid},{},(err,data)=>{
+        if(data.length<=0){
+            res.end('id值非法，没有对应数据');
+            return;
+        }
+        xtpl.renderFile(path.join(__dirname, '../view/edit.html'),data[0], (err, html) => {
+        if (err) {
+          res.end(err.message);
+          return;
+        }
+        res.end(html);
+    });
+    });
+}
+```
+
+### 解决富文本显示我们存在数据库中数据的问题
+1. 查看官方文档的时候发现可以通过设置内容来实现富文本框显示内容
+```
+var ue=UE.getEditor('editor');
+ue.setContent('欢迎使用',false);
+```
+2. 但是刷新页面后发现富文本的值不能使用
+3. 当我们的浏览器从上往下执行，执行到`var ue=UE.getEditor('editor');`时，页面渲染是需要时间的，但是我们马上就要对它设值，所以不能用
+4. 可以设置一个延迟，但是我们不知道要延迟多久
+```
+var content='{{vremark}}';
+setTimeout(function(){
+  ue.setContent(content,false);
+}, 1000);
+```
+5. 但是我们输出的是一段被解析成HTML标签的字符串
+```
+<p><img src="/images/ueditor/802142432136400896.JPG" title="" alt="IMG_0635.JPG"/></p>
+```
+6. 需要将`&lt`;自动变成小于号
+```
+content=$('<span />').html(content).text();
+```
+7. 由于我们的jQuery是在页面底部加载的，因此我们需要添加onload事件。
+8. 但是我们的富文本编辑器是不成功的，原生的富文本编辑器已经不能满足我们的需求，需改进下富文本编辑器。
+9. 假设我们创建完编辑器之后然后执行一个回调函数，回调函数里面再去执行我们的设置值的事情。
+10. 在我们的ueditor.all.js中我们找到getEditor函数主体。
+11. 由上面推测可知我们需要传入一个回调函数，但是在return之前来执行这个回调函数显然是不合理的，因为我们的JS代码执行是非常快，而富文本编辑器渲染是需要时间的。
+12. 我们可以在全局设置一个回调函数变量，在getEditor函数主体对全局变量赋值
+13. 回调函数会在我们函数执行完毕之后执行，这样我们的富文本就能很好的渲染
+```
+var ve=UE.getEditor('editor',{},function(){
+    ue.setContent(content,false);
+});
+```
