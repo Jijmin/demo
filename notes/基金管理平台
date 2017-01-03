@@ -1,0 +1,195 @@
+### 基金管理平台的框架
+#### 后端express
+1. App.js    路由入口
+2. Routes/   页面路由
+3. Views/    后端模版 使用ejs
+- head.html  头部、左侧菜单等
+- foot.html  底部、seajs加载器等
+4. Bll/      业务逻辑层
+5. Helper/   后端公共模块
+- mysql.js   链接数据库
+- publish.js CAE发布
+- util.js    公共函数
+- convertToOther  渲染前针对不同平台进行过滤
+- Log        日志
+6. Config/   后端配置
+- db.js      db配置
+- tab.js     页面控件配置
+7. Publish/  发布文件备份
+
+#### 前端：使用seajs加载
+1. Public/
+- adminskin     管理端样式模版
+- css           样式
+- img           图片
+- js            js（包括公共的，如util.js moment.js等）、前端模版（使用ejs）
+
+### 入口文件app.js
+1. `express`基于node.js平台的web应用开发框架
+2. `path`nodejs的路径模块
+3. `serve-favicon`node的中间键，用于请求网页的logo
+4. `morgan`node.js关于http请求的日志中间件，在控制台中，显示req请求的信息
+5. `cookie-parser`处理每一个请求的cookie
+6. `body-parser`对以JSON格式的post参数和urlencoeded的post参数进行解析
+7. `./routes/index`导入主路由
+8. `./routes/users`user表的路由
+9. `./routes/fund`基金的主路由
+
+### index.ejs
+1. `seajs.use`用来在页面中加载一个或多个模块。
+
+### users.js
+1. `res.send`发送一个简单的响应，当设置为"text/html"时发送字符串
+
+### fund.js-routes
+1. `../bll/fund`基金DB读写
+
+### 问题
+1. app.js中将serve-favicon注销
+2. 在app.js中对cookie-parser处理，cookie在哪里进行了使用
+3. 在路由中回调函数中参数next没有调用
+4. 在进行渲染的时候模板是index.jade还是index.ejs
+5. 在index.ejx中是用Bootstrap写的？直接在标签中加入样式？
+6. mysql.js中有两个createConnection?
+7. 发布页面链接404错误
+8. fund.js中mapColContent？
+9. 基金名称
+10. fund.js页面的路由
+11. tof用法
+```
+var tof = require('@tencent/tof')(config.tof.appKey);
+var tof3 = require('@tencent/tof').tof3;
+```
+
+### 架构分析
+- bll【业务逻辑层】
+    + fund.js
+    + otherpage.js
+    + template.js
+- config【后端配置】
+    + config.js
+    + db.js
+    + histouzi.json
+    + log4js.json
+    + otherpage.js
+    + tab.js
+        * 基金维护的字段管理
+- data
+- helper【后端公共模块】
+    + convertToOther.js
+    + log.js
+    + mail.js
+    + mysql.js
+    + publish.js
+    + util.js
+- log【日志】
+    + app.log
+    + errors.log
+- node_modules【包缓存】
+- public【前端】
+    + adminskin
+    + css
+    + fonts
+    + img
+    + js
+        * assetprofilelist.tpl
+        * ejs.js
+        * fundbonds.tpl
+        * fundedit.js
+        * fundlist.js
+        * fundlist.tpl
+        * fundmanager.tpl
+        * index.js
+            - 初始化的函数主体
+        * jquery.qrcode.min.js
+        * modal.js
+        * modal.tpl
+        * moment.js
+        * noticelist.tpl
+        * otheredit.js
+        * otherlist.js
+        * pagemodule.js
+        * pagemodule1.tpl
+        * pagemodule2.tpl
+        * templatelist.js
+        * templatelist.tpl
+        * util.js
+- publish【发布文件备份】
+    + gamma
+    + idc
+    + templatebackup
+- routes【页面路由】
+    + fund.js
+        * fundlist基金表的渲染的路由设置，用的是fundlist.ejs模板
+        * search获取到基金列表的数据
+        * fundedit创建新的基金类型的路由的设置
+            - 同步执行多个函数
+            - 根据id值对基金数据进行调用
+            - 以及相应的模板的显示的处理
+            - 异步的回调函数中对模板的读取操作
+            - 将ejs模板进行对应的赋值渲染
+            - 对fundedit.ejs读取按照fundedittemp.ejs格式进行渲染输出，里面填充了数据
+        * fundfabudata对第一条基金数据做处理
+        * fundgamma，fundidc对发布基金进行一个容错的处理
+        * modify修改后对数据设置之后进行提交
+    + index.js
+        * 主页模块默认路由的设置
+        * 主页路由用的是index.ejs模板
+        * 对favicon进行路由进行设置
+    + otherpage.js
+        * 基金相关页面的路由
+        * 对基金相关页面的修改路由设置
+    + template.js
+        * 模板列表的路由设置
+        * search通过查询实现对数据的获取
+        * getTemplateById通过id获取对应的数据
+        * modify对模板修改的路由操作
+    + users.js
+        * 用户模块默认路由设置
+- views【后端模版】
+    + error.jade
+    + foot.html
+        * 尾部公共模板
+    + funddiff.ejs
+    + fundedit.ejs
+        * 面包屑功能是固定的
+        * tab切换用锚点找到对应的块显示
+        * 通过绑定要显示的锚点进行块的切换
+        * 循环遍历输出配置文件中的标题信息，以及绑定对应的块
+        * 后台有数据后可以根据简称(id)复制进行显示，然后在那个基础上进行修改
+        * 加载其他基金数据进行初始化，以及对各个字段的渲染
+        * 基金类型通过设置字段记录
+        * 基金列表中的所有信息统一保存在对应的基金上
+        * 基金经理中可以通过点击添加按钮进行基金经理的录入
+        * 后面的分类块的显示的内容是通过循环遍历将配置文件中的dataFormat对应的输出
+    + fundedittemp.ejs
+        * 基金各个条目的显示模板信息
+    + fundlist.ejs
+        * 基金列表模板
+    + header.html
+        * 头部公共部分
+    + index.ejs
+        * 引入头部公共模块
+        * 引入尾部公共模块
+        * 使用seajs进行加载模块，加载的是public目录下的js中的模块
+        * 对模块进行初始化
+    + index.jade
+    + layout.jade
+    + mail.ejs
+    + otherlist.ejs
+    + otherpage.ejs
+    + templatelist.ejs
+- app.js【入口文件】
+    + 引入需要使用的包
+    + 对项目各个模块进行引入
+    + 对tencent接口的调用
+    + 后端模板视图的设置
+    + 对日志文件的操作
+    + 对获取的json数据进行操作
+    + 对cookie设置
+    + 静态路由路径设置
+    + 子页面主路由的设置
+    + 容错性的处理
+    + 监听端口
+- install.cmd
+- package.json【包依赖】
