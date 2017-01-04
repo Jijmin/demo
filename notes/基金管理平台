@@ -193,3 +193,25 @@ var tof3 = require('@tencent/tof').tof3;
     + 监听端口
 - install.cmd
 - package.json【包依赖】
+
+### 【产品特点】弹出层规则设置
+```
+<?if(griditem.type=='button'){?>
+  <div class="form-group">
+    <button type="button" class="btn btn-primary"><?=griditem.title?></button>
+  </div>
+<?}?>
+<?if(griditem.type=='radio'){?>
+  <div class="form-group">
+    <label class="control-label" ><?=griditem.title?></label>
+    <input type="radio" name="<?=griditem.name?>">
+  </div>
+<?}?>
+```
+> views->fundedit.ejs->208
+
+### 【产品特点】页面添加一个分级的产品特点栏目
+> config->tab.js拷贝一个配置文件子集
+
+### 增加一个tab栏目
+> config->tab.js直接在tab配置中最外层数组中添加
